@@ -1,6 +1,7 @@
 import { Outlet } from 'react-router-dom';
 import Sidebar from './Sidebar';
 import TopBar from './TopBar';
+import ErrorBoundary from '../ui/ErrorBoundary';
 
 export default function AppLayout({ appState }) {
   const {
@@ -30,7 +31,9 @@ export default function AppLayout({ appState }) {
           alertCount={alerts.length}
         />
         <main className="flex-1 overflow-y-auto p-6">
-          <Outlet context={appState} />
+          <ErrorBoundary>
+            <Outlet context={appState} />
+          </ErrorBoundary>
         </main>
       </div>
     </div>

@@ -1,14 +1,24 @@
 import React from 'react';
 
-const FilterBar = ({ filters, activeFilter, onFilterChange }) => {
+const FilterBar = ({ filters = [], options, activeFilter, onFilterChange }) => {
+  // Normalize items whether passed as filters (objects) or options (strings/objects)
+  const rawList = filters.length > 0 ? filters : (options || []);
+  const normalizedList = rawList.map(item => {
+    if (typeof item === 'string') {
+      return { key: item, label: item };
+    }
+    return item;
+  });
+
   return (
     <div className="flex flex-wrap gap-2">
-      {filters.map((filter) => {
-        const isActive = activeFilter === filter.key;
+      {normalizedList.map((filter) => {
+        const isActive = String(activeFilter).toUpperCase() === String(filter.key).toUpperCase();
         return (
           <button
             key={filter.key}
-            onClick={() => onFilterChange(filter.key)}
+            type="button"
+            onClick={() => onFilterChange && onFilterChange(filter.key)}
             className={`flex items-center gap-2 px-3 py-1.5 rounded-full text-[13px] font-medium transition-colors border ${
               isActive 
                 ? 'bg-mine-text-primary text-white border-mine-text-primary shadow-sm' 
