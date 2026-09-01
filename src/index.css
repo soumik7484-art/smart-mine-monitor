@@ -1,0 +1,108 @@
+@import '@fontsource/inter/400.css';
+@import '@fontsource/inter/500.css';
+@import '@fontsource/inter/600.css';
+@import '@fontsource/inter/700.css';
+
+@tailwind base;
+@tailwind components;
+@tailwind utilities;
+
+@layer base {
+  html {
+    font-feature-settings: 'cv02', 'cv03', 'cv04', 'cv11';
+    -webkit-font-smoothing: antialiased;
+    -moz-osx-font-smoothing: grayscale;
+  }
+
+  /* Tabular numbers for data values */
+  .tabular-nums {
+    font-variant-numeric: tabular-nums;
+  }
+
+  /* Scrollbar styling for industrial look */
+  ::-webkit-scrollbar {
+    width: 6px;
+    height: 6px;
+  }
+
+  ::-webkit-scrollbar-track {
+    background: #EEEBE4;
+  }
+
+  ::-webkit-scrollbar-thumb {
+    background: #D8D3CA;
+    border-radius: 3px;
+  }
+
+  ::-webkit-scrollbar-thumb:hover {
+    background: #B8B3AA;
+  }
+}
+
+@layer components {
+  .page-header {
+    @apply text-xl font-semibold text-mine-text-primary;
+  }
+
+  .page-subtitle {
+    @apply text-sm text-mine-text-secondary mt-0.5;
+  }
+
+  .section-title {
+    @apply text-xs font-semibold uppercase tracking-wider text-mine-text-secondary;
+  }
+
+  .card {
+    @apply bg-mine-surface border border-mine-border rounded shadow-card;
+  }
+
+  .card-header {
+    @apply px-4 py-3 border-b border-mine-border;
+  }
+
+  .card-body {
+    @apply px-4 py-3;
+  }
+
+  /* Status dot indicator */
+  .status-dot {
+    @apply inline-block w-2 h-2 rounded-full flex-shrink-0;
+  }
+
+  .status-dot-safe {
+    @apply bg-status-safe;
+  }
+
+  .status-dot-warning {
+    @apply bg-status-warning;
+  }
+
+  .status-dot-critical {
+    @apply bg-status-critical;
+  }
+
+  .status-dot-offline {
+    @apply bg-status-offline;
+  }
+
+  /* Table styles */
+  .data-table {
+    @apply w-full text-sm;
+  }
+
+  .data-table thead th {
+    @apply text-left text-xs font-semibold uppercase tracking-wider text-mine-text-secondary px-3 py-2.5 border-b border-mine-border bg-mine-surface-alt;
+  }
+
+  .data-table tbody td {
+    @apply px-3 py-2.5 border-b border-mine-border text-mine-text-primary;
+  }
+
+  .data-table tbody tr:hover {
+    @apply bg-mine-surface-alt/50;
+  }
+
+  .data-table tbody tr:last-child td {
+    @apply border-b-0;
+  }
+}
