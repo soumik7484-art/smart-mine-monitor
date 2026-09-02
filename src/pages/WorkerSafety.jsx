@@ -1,119 +1,172 @@
 import React, { useState } from 'react';
-import StatCard from '../components/ui/StatCard';
+import { useMine } from '../context/MineContext';
 import DataTable from '../components/ui/DataTable';
 import StatusBadge from '../components/ui/StatusBadge';
+import {
+  HardHat,
+  Radio,
+  DoorOpen,
+  Info,
+  Activity,
+  Heart,
+  Compass,
+  AlertTriangle,
+  CheckCircle2,
+} from 'lucide-react';
 
-const WorkerSafety = ({ workers = [], emergencyState }) => {
-  const [selectedWorker, setSelectedWorker] = useState(null);
+export default function WorkerSafety() {
+  const {
+    workers = [],
+    workerRoutes = {},
+    selectedWorker,
+    setSelectedWorker,
+    emergencyModeActive,
+  } = useMine();
 
-  const workersUnderground = workers.length;
-  const helmetsConnected = workers.filter(w => w.helmet === 'Connected').length;
-  const safetyAlerts = workers.filter(w => w.risk !== 'Low').length;
+  const [activeWorker, setActiveWorker] = useState(selectedWorker || workers[0]);
+
+  const assignedRoute = activeWorker ? workerRoutes[activeWorker.id] : null;
 
   const columns = [
-    { key: 'id', label: 'Worker ID' },
-    { key: 'name', label: 'Name' },
-    { key: 'zone', label: 'Zone' },
-    { key: 'helmet', label: 'Helmet' },
-    { 
-      key: 'temperature', 
-      label: 'Temp (°C)', 
-      render: (val) => <span className="tabular-nums">{val?.toFixed(1)}</span>
+    {
+      key: 'id',
+      label: 'Miner Tag ID',
+      render: (val) => <span className="font-mono font-bold text-mine-text-primary">{val}</span>,
     },
-    { key: 'movement', label: 'Movement' },
-    { key: 'connection', label: 'Connection' },
-    { 
-      key: 'risk', 
-      label: 'Risk',
-      render: (val) => {
-        let colorClass = 'text-status-safe';
-        if (val === 'Medium') colorClass = 'text-status-warning';
-        if (val === 'High') colorClass = 'text-status-critical';
-        return <span className={`font-semibold ${colorClass}`}>{val}</span>;
-      }
+    {
+      key: 'name',
+      label: 'Miner Name',
+      render: (val) => <span className="font-semibold text-mine-text-primary">{val}</span>,
     },
-    { 
-      key: 'status', 
-      label: 'Status',
-      render: (val) => <StatusBadge status={val} />
-    }
+    {
+      key: 'zone',
+      label: 'Subsurface Sector',
+      render: (val) => <span>Zone {val}</span>,
+    },
+    { key: 'role', label: 'Assigned Role' },
+    {
+      key: 'nodeId',
+      label: 'UPS Junction Node',
+      render: (val) => <span className="font-mono font-semibold text-mine-text-primary">{val}</span>,
+    },
+    {
+      key: 'helmet',
+      label: 'Smart Helmet Mesh',
+      render: (val) => (
+        <span className={`inline-flex items-center gap-1.5 text-xs font-semibold ${val === 'Connected' ? 'text-status-safe' : 'text-status-warning'}`}>
+          <span className={`w-1.5 h-1.5 rounded-full ${val === 'Connected' ? 'bg-status-safe' : 'bg-status-warning'}`} />
+          {val}
+        </span>
+      ),
+    },
+    {
+      key: 'movement',
+      label: 'Activity',
+      render: (val) => <span className="font-mono text-xs">{val}</span>,
+    },
+    {
+      key: 'status',
+      label: 'Evacuation State',
+      render: (val) => <StatusBadge status={val} />,
+    },
   ];
 
   return (
-    <div className="space-y-6">
-      <div>
-        <h1 className="text-2xl font-semibold text-mine-text-primary">Worker Safety</h1>
-        <p className="text-mine-text-secondary text-sm mt-1">Underground personnel monitoring and helmet telemetry</p>
+    <div className="space-y-6 animate-fadeIn">
+      {/* Header */}
+      <div className="flex flex-wrap items-center justify-between gap-4">
+        <div>
+          <div className="flex items-center gap-2.5">
+            <h1 className="text-2xl font-bold tracking-tight text-mine-text-primary">
+              Underground Positioning System (UPS) & Worker Safety
+            </h1>
+            <span className="text-xs font-mono font-bold px-2.5 py-0.5 rounded bg-mine-surface-alt border border-mine-border text-mine-text-secondary">
+              UWB / BLE MESH / IMU DEAD-RECKONING
+            </span>
+          </div>
+          <p className="text-xs text-mine-text-secondary mt-1">
+            Subsurface Localization: Time-of-Flight Distance to Tunnel Anchors & Helmet Inertial Sensors
+          </p>
+        </div>
       </div>
 
-      <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
-        <StatCard title="Workers Underground" value={workersUnderground} />
-        <StatCard title="Helmets Connected" value={helmetsConnected} />
-        <StatCard 
-          title="Safety Alerts" 
-          value={safetyAlerts} 
-          valueClassName={safetyAlerts > 0 ? "text-status-critical" : "text-mine-text-primary"} 
-        />
+      {/* Why UPS instead of GPS Educational Callout */}
+      <div className="card p-4 bg-mine-surface border border-mine-border space-y-2">
+        <div className="flex items-center gap-2 text-xs font-bold uppercase tracking-wider text-mine-text-primary">
+          <Info className="h-4 w-4 text-status-attention" />
+          <span>Why Underground Positioning System (UPS) Instead of Conventional Satellite GPS?</span>
+        </div>
+        <p className="text-xs text-mine-text-secondary leading-relaxed">
+          Standard satellite GPS signals cannot penetrate hundreds of meters of dense rock overburden. MINEGUARD AI replaces GPS with an <strong>Underground Positioning System (UPS)</strong> using 10 Decawave DWM1000 UWB (Ultra-Wideband) Time-of-Flight anchors installed at tunnel junctions (&plusmn;0.5m accuracy), Bluetooth Low Energy (BLE) mesh triangulation along crosscuts, and smart helmet triaxial IMUs calculating dead-reckoning step count if anchor line-of-sight is interrupted.
+        </p>
       </div>
 
-      <div className="card">
-        <DataTable 
+      {/* Workers Roster Table */}
+      <div className="card p-5 space-y-4 bg-mine-surface border border-mine-border">
+        <div className="border-b border-mine-border pb-3 flex justify-between items-center">
+          <h2 className="text-sm font-semibold text-mine-text-primary">
+            Subsurface Mining Personnel Roster (8 Active Tags)
+          </h2>
+          <span className="text-xs font-mono text-mine-text-secondary">
+            Click row to inspect miner telemetry
+          </span>
+        </div>
+
+        <DataTable
           columns={columns}
           data={workers}
-          onRowClick={(row) => setSelectedWorker(row)}
-          selectedId={selectedWorker?.id}
+          onRowClick={(row) => {
+            setActiveWorker(row);
+            setSelectedWorker(row);
+          }}
         />
       </div>
 
-      {selectedWorker && (
-        <div className="card mt-6 border-l-4 border-l-status-attention">
-          <div className="card-header flex justify-between items-center border-b border-mine-border pb-4">
-            <div>
-              <h3 className="font-semibold text-mine-text-primary text-lg">{selectedWorker.name} ({selectedWorker.id})</h3>
-              <p className="text-mine-text-secondary text-sm">Zone: {selectedWorker.zone}</p>
+      {/* Selected Worker Detailed Card */}
+      {activeWorker && (
+        <div className="card p-5 space-y-4 bg-mine-surface border border-mine-border animate-fadeIn">
+          <div className="border-b border-mine-border pb-3 flex items-center justify-between">
+            <div className="flex items-center gap-3">
+              <div className="p-2 rounded bg-mine-surface-alt border border-mine-border">
+                <HardHat className="h-5 w-5 text-status-attention" />
+              </div>
+              <div>
+                <h3 className="text-sm font-bold text-mine-text-primary">
+                  {activeWorker.name} ({activeWorker.id}) — {activeWorker.role}
+                </h3>
+                <p className="text-xs text-mine-text-secondary">
+                  Subsurface Location: Sector {activeWorker.zone} • At Junction {activeWorker.nodeId}
+                </p>
+              </div>
             </div>
-            <button 
-              onClick={() => setSelectedWorker(null)}
-              className="text-mine-text-secondary hover:text-mine-text-primary font-semibold text-sm"
-            >
-              Close
-            </button>
+            <StatusBadge status={activeWorker.status} />
           </div>
-          <div className="card-body p-4 bg-mine-surface-alt">
-            <h4 className="text-sm font-semibold text-mine-text-primary mb-4">Helmet Telemetry Details</h4>
-            <div className="grid grid-cols-2 md:grid-cols-3 gap-4">
-              <div>
-                <span className="block text-xs uppercase tracking-wider text-mine-text-secondary">Temperature</span>
-                <span className="block text-sm font-medium tabular-nums">{selectedWorker.temperature}°C</span>
-              </div>
-              <div>
-                <span className="block text-xs uppercase tracking-wider text-mine-text-secondary">Humidity</span>
-                <span className="block text-sm font-medium tabular-nums">{selectedWorker.humidity}%</span>
-              </div>
-              <div>
-                <span className="block text-xs uppercase tracking-wider text-mine-text-secondary">Movement</span>
-                <span className="block text-sm font-medium">{selectedWorker.movement}</span>
-              </div>
-              <div>
-                <span className="block text-xs uppercase tracking-wider text-mine-text-secondary">Location</span>
-                <span className="block text-sm font-medium">{selectedWorker.zone}</span>
-              </div>
-              <div>
-                <span className="block text-xs uppercase tracking-wider text-mine-text-secondary">Connection</span>
-                <span className="block text-sm font-medium">{selectedWorker.connection}</span>
-              </div>
-              <div>
-                <span className="block text-xs uppercase tracking-wider text-mine-text-secondary">Emergency Status</span>
-                <span className={`block text-sm font-medium ${emergencyState || selectedWorker.status === 'EMERGENCY' ? 'text-status-critical' : 'text-status-safe'}`}>
-                  {emergencyState || selectedWorker.status === 'EMERGENCY' ? 'ACTIVE ALERT' : 'Normal'}
-                </span>
-              </div>
+
+          <div className="grid grid-cols-1 sm:grid-cols-3 gap-4 text-xs">
+            <div className="p-3 rounded bg-mine-surface-alt border border-mine-border space-y-1">
+              <span className="text-mine-text-secondary">Assigned Surface Exit:</span>
+              <p className="font-semibold text-status-safe flex items-center gap-1 text-sm font-mono">
+                <DoorOpen className="h-4 w-4" />
+                {assignedRoute?.exitLabel || 'Exit E1'}
+              </p>
+            </div>
+
+            <div className="p-3 rounded bg-mine-surface-alt border border-mine-border space-y-1">
+              <span className="text-mine-text-secondary">Estimated Escape Distance:</span>
+              <p className="font-semibold text-mine-text-primary text-sm font-mono">
+                {assignedRoute?.totalDistance || 280} meters (~{assignedRoute?.estimatedTime || '3 min 53 sec'})
+              </p>
+            </div>
+
+            <div className="p-3 rounded bg-mine-surface-alt border border-mine-border space-y-1">
+              <span className="text-mine-text-secondary">Helmet Sensor Stream:</span>
+              <p className="font-semibold text-mine-text-primary font-mono">
+                IMU Active • LoRaWAN 868MHz RSSI -74dBm
+              </p>
             </div>
           </div>
         </div>
       )}
     </div>
   );
-};
-
-export default WorkerSafety;
+}

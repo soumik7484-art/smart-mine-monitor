@@ -1,126 +1,282 @@
 import React, { useState } from 'react';
-import FilterBar from '../components/ui/FilterBar';
+import { useMine } from '../context/MineContext';
 import DataTable from '../components/ui/DataTable';
 import StatusBadge from '../components/ui/StatusBadge';
 import SensorChart from '../components/ui/SensorChart';
+import {
+  Radio,
+  Sliders,
+  Filter,
+  Activity,
+  Battery,
+  Wifi,
+  AlertTriangle,
+  RotateCcw,
+} from 'lucide-react';
 
-const SensorNetwork = ({ sensorData, selectedNode, setSelectedNode }) => {
-  const [activeFilter, setActiveFilter] = useState('All');
+export default function SensorNetwork() {
+  const {
+    sensors = [],
+    selectedSensor,
+    setSelectedSensor,
+    setIsSensorSimulatorOpen,
+    triggerSubsidence,
+    resetToNormal,
+  } = useMine();
 
-  const nodes = sensorData?.nodes || [];
+  const [zoneFilter, setZoneFilter] = useState('ALL');
+  const [typeFilter, setTypeFilter] = useState('ALL');
 
-  const counts = {
-    All: nodes.length,
-    Safe: nodes.filter(n => n.status === 'SAFE').length,
-    Warning: nodes.filter(n => n.status === 'WARNING').length,
-    Critical: nodes.filter(n => n.status === 'CRITICAL' || n.status === 'HIGH').length,
-    Offline: nodes.filter(n => n.status === 'OFFLINE').length,
-  };
-
-  const filteredNodes = nodes.filter(node => {
-    if (activeFilter === 'All') return true;
-    if (activeFilter === 'Safe') return node.status === 'SAFE';
-    if (activeFilter === 'Warning') return node.status === 'WARNING';
-    if (activeFilter === 'Critical') return node.status === 'CRITICAL' || node.status === 'HIGH';
-    if (activeFilter === 'Offline') return node.status === 'OFFLINE';
-    return true;
+  const filteredSensors = sensors.filter((s) => {
+    const matchesZone = zoneFilter === 'ALL' || s.zone === zoneFilter;
+    const matchesType = typeFilter === 'ALL' || s.type === typeFilter;
+    return matchesZone && matchesType;
   });
 
+  const dispSensor = sensors.find((s) => s.type === 'LVDT') || sensors[0];
+  const tiltSensor = sensors.find((s) => s.type === 'Tiltmeter') || sensors[1];
+  const vibSensor = sensors.find((s) => s.type === 'Geophone') || sensors[2];
+  const stressSensor = sensors.find((s) => s.type === 'PressureCell') || sensors[3];
+
   const columns = [
-    { key: 'id', label: 'Node' },
-    { key: 'location', label: 'Location' },
-    { 
-      key: 'tilt', 
-      label: 'Tilt (°)', 
-      render: (val, row) => <span className={`tabular-nums ${val > 2 ? 'text-status-warning' : val > 5 ? 'text-status-critical' : ''}`}>{val?.toFixed(2)}</span> 
+    {
+      key: 'id',
+      label: 'Node ID',
+      render: (val, row) => <span className="font-mono font-bold text-mine-text-primary">{val}</span>,
     },
-    { 
-      key: 'vibration', 
-      label: 'Vibration (g)', 
-      render: (val, row) => <span className={`tabular-nums ${val > 0.05 ? 'text-status-warning' : val > 0.1 ? 'text-status-critical' : ''}`}>{val?.toFixed(3)}</span> 
+    {
+      key: 'zone',
+      label: 'Sector',
+      render: (val) => <span className="font-semibold text-mine-text-primary">Zone {val}</span>,
     },
-    { 
-      key: 'displacement', 
-      label: 'Displacement (mm)', 
-      render: (val, row) => <span className={`tabular-nums ${val > 1 ? 'text-status-warning' : val > 3 ? 'text-status-critical' : ''}`}>{val?.toFixed(2)}</span> 
+    { key: 'type', label: 'Sensor Type' },
+    {
+      key: 'displacement',
+      label: 'LVDT Disp (mm)',
+      render: (val) => (
+        <span className={`font-mono tabular-nums font-semibold ${val > 5 ? 'text-status-critical' : val > 2 ? 'text-status-warning' : 'text-mine-text-primary'}`}>
+          {val.toFixed(2)}
+        </span>
+      ),
     },
-    { 
-      key: 'temperature', 
-      label: 'Temperature (°C)', 
-      render: (val, row) => <span className={`tabular-nums ${val > 35 ? 'text-status-warning' : val > 45 ? 'text-status-critical' : ''}`}>{val?.toFixed(1)}</span> 
+    {
+      key: 'tilt',
+      label: 'Tilt (°)',
+      render: (val) => (
+        <span className={`font-mono tabular-nums ${val > 3 ? 'text-status-critical' : val > 1.5 ? 'text-status-warning' : 'text-mine-text-primary'}`}>
+          {val.toFixed(2)}
+        </span>
+      ),
     },
-    { key: 'gas', label: 'Gas', render: (val, row) => `${val} (${row.gasValue?.toFixed(2)})` },
-    { key: 'battery', label: 'Battery (%)', render: (val) => <span className="tabular-nums">{val}</span> },
-    { key: 'signal', label: 'Signal', render: (val) => <span className="tabular-nums">{val}</span> },
-    { 
-      key: 'status', 
-      label: 'Status', 
-      render: (val) => <StatusBadge status={val} /> 
+    {
+      key: 'vibration',
+      label: 'Vibration (g)',
+      render: (val) => (
+        <span className={`font-mono tabular-nums ${val > 0.4 ? 'text-status-critical' : 'text-mine-text-primary'}`}>
+          {val.toFixed(3)}
+        </span>
+      ),
+    },
+    {
+      key: 'stress',
+      label: 'Stress (MPa)',
+      render: (val) => (
+        <span className={`font-mono tabular-nums ${val > 15 ? 'text-status-critical' : 'text-mine-text-primary'}`}>
+          {val.toFixed(1)}
+        </span>
+      ),
+    },
+    {
+      key: 'battery',
+      label: 'Battery',
+      render: (val) => <span className="font-mono text-xs tabular-nums">{val}%</span>,
+    },
+    {
+      key: 'status',
+      label: 'Condition',
+      render: (val) => <StatusBadge status={val} />,
     },
   ];
 
   return (
-    <div className="space-y-6">
-      <div>
-        <h1 className="text-2xl font-semibold text-mine-text-primary">Sensor Network</h1>
-        <p className="text-mine-text-secondary text-sm mt-1">Detailed monitoring of all sensor nodes</p>
+    <div className="space-y-6 animate-fadeIn">
+      {/* Header */}
+      <div className="flex flex-wrap items-center justify-between gap-4">
+        <div>
+          <div className="flex items-center gap-2.5">
+            <h1 className="text-2xl font-bold tracking-tight text-mine-text-primary">
+              Strata Sensor Grid Telemetry
+            </h1>
+            <span className="text-xs font-mono font-bold px-2.5 py-0.5 rounded bg-mine-surface-alt border border-mine-border text-mine-text-secondary">
+              24 IOT NODES ONLINE
+            </span>
+          </div>
+          <p className="text-xs text-mine-text-secondary mt-1">
+            Real-Time Multi-Parameter Strata Monitoring: LVDT Extensometers, Tilt Clinometers, 14Hz Geophones & Stress Cells
+          </p>
+        </div>
+
+        <div className="flex items-center gap-2">
+          <button
+            type="button"
+            onClick={resetToNormal}
+            className="flex items-center gap-1 px-3 py-1.5 rounded text-xs font-semibold bg-mine-surface border border-mine-border text-mine-text-primary hover:bg-mine-surface-alt transition shadow-card"
+          >
+            <RotateCcw className="h-3.5 w-3.5" />
+            Reset Baseline
+          </button>
+          <button
+            type="button"
+            onClick={() => setIsSensorSimulatorOpen(true)}
+            className="flex items-center gap-1.5 px-3 py-1.5 rounded text-xs font-semibold bg-status-attention text-white hover:opacity-90 transition shadow-sm"
+          >
+            <Sliders className="h-3.5 w-3.5" />
+            Telemetry Sliders
+          </button>
+        </div>
       </div>
 
-      <FilterBar 
-        filters={Object.keys(counts).map(key => ({
-          id: key,
-          label: key,
-          count: counts[key]
-        }))}
-        activeFilter={activeFilter}
-        onFilterChange={setActiveFilter}
-      />
+      {/* 4 Representative Real-Time Waveforms */}
+      <div className="card p-5 space-y-4 bg-mine-surface border border-mine-border">
+        <div className="border-b border-mine-border pb-3 flex justify-between items-center">
+          <div>
+            <h2 className="text-sm font-semibold text-mine-text-primary">
+              Primary Strata Telemetry Time-Series Waveforms
+            </h2>
+            <p className="text-xs text-mine-text-secondary">Rolling 30-data-point continuous sampling</p>
+          </div>
+          <span className="text-xs font-mono text-mine-text-secondary">Sampling: 100 Hz</span>
+        </div>
 
-      <div className="card">
-        <DataTable 
+        <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-4">
+          <SensorChart
+            label={`LVDT Displacement (${dispSensor.id})`}
+            data={dispSensor.history?.displacement || []}
+            dataKey="value"
+            color="#C4820E"
+            height={150}
+          />
+          <SensorChart
+            label={`Clinometer Tilt (${tiltSensor.id})`}
+            data={tiltSensor.history?.tilt || []}
+            dataKey="value"
+            color="#D97706"
+            height={150}
+          />
+          <SensorChart
+            label={`Geophone Vibration (${vibSensor.id})`}
+            data={vibSensor.history?.vibration || []}
+            dataKey="value"
+            color="#C4362E"
+            height={150}
+          />
+          <SensorChart
+            label={`Pillar Stress (${stressSensor.id})`}
+            data={stressSensor.history?.stress || []}
+            dataKey="value"
+            color="#2D8A4E"
+            height={150}
+          />
+        </div>
+      </div>
+
+      {/* Filter Bar & Sensor Table */}
+      <div className="card p-5 space-y-4 bg-mine-surface border border-mine-border">
+        <div className="flex flex-wrap items-center justify-between gap-4 border-b border-mine-border pb-3">
+          {/* Zone Filters */}
+          <div className="flex items-center gap-1.5 text-xs">
+            <span className="text-mine-text-secondary font-semibold uppercase tracking-wider mr-1">Sector:</span>
+            {['ALL', 'A', 'B', 'C', 'D'].map((z) => (
+              <button
+                key={z}
+                type="button"
+                onClick={() => setZoneFilter(z)}
+                className={`px-2.5 py-1 rounded text-xs font-medium border transition ${
+                  zoneFilter === z
+                    ? 'bg-mine-text-primary text-white border-mine-text-primary'
+                    : 'bg-mine-surface border-mine-border text-mine-text-secondary hover:bg-mine-surface-alt'
+                }`}
+              >
+                {z === 'ALL' ? 'All Zones' : `Zone ${z}`}
+              </button>
+            ))}
+          </div>
+
+          {/* Type Filters */}
+          <div className="flex items-center gap-1.5 text-xs">
+            <span className="text-mine-text-secondary font-semibold uppercase tracking-wider mr-1">Sensor:</span>
+            {['ALL', 'LVDT', 'Tiltmeter', 'Geophone', 'PressureCell'].map((t) => (
+              <button
+                key={t}
+                type="button"
+                onClick={() => setTypeFilter(t)}
+                className={`px-2 py-1 rounded text-xs font-medium border transition ${
+                  typeFilter === t
+                    ? 'bg-mine-surface-alt font-bold text-mine-text-primary border-mine-border'
+                    : 'bg-mine-surface border-mine-border text-mine-text-secondary hover:bg-mine-surface-alt'
+                }`}
+              >
+                {t}
+              </button>
+            ))}
+          </div>
+        </div>
+
+        {/* 24-Node Telemetry Table */}
+        <DataTable
           columns={columns}
-          data={filteredNodes}
-          onRowClick={(row) => setSelectedNode(row)}
-          selectedId={selectedNode?.id}
+          data={filteredSensors}
+          onRowClick={(row) => setSelectedSensor(row)}
+          emptyMessage="No sensor nodes match the selected sector or type filter."
         />
       </div>
 
-      {selectedNode && (
-        <div className="card mt-6">
-          <div className="card-header flex justify-between items-center border-b border-mine-border pb-4">
+      {/* Selected Node Expanded Drawer */}
+      {selectedSensor && (
+        <div className="card p-5 space-y-4 bg-mine-surface border border-mine-border animate-fadeIn">
+          <div className="flex items-center justify-between border-b border-mine-border pb-3">
             <div>
-              <h3 className="font-semibold text-mine-text-primary text-lg">{selectedNode.id}</h3>
-              <p className="text-mine-text-secondary text-sm">{selectedNode.location}</p>
+              <h3 className="text-sm font-bold text-mine-text-primary">
+                Sensor Inspector: {selectedSensor.label} ({selectedSensor.id})
+              </h3>
+              <p className="text-xs text-mine-text-secondary">
+                Sector {selectedSensor.zone} • Mounted at Junction {selectedSensor.nodeId}
+              </p>
             </div>
-            <button 
-              onClick={() => setSelectedNode(null)}
-              className="text-mine-text-secondary hover:text-mine-text-primary font-semibold text-sm"
+            <button
+              type="button"
+              onClick={() => setSelectedSensor(null)}
+              className="text-xs text-mine-text-secondary hover:text-mine-text-primary font-medium"
             >
-              Close
+              Close Inspector
             </button>
           </div>
-          <div className="card-body grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-4 mt-4">
-            <div className="bg-mine-surface-alt p-3 rounded border border-mine-border">
-              <h4 className="text-xs uppercase tracking-wider text-mine-text-secondary mb-2">Displacement</h4>
-              <SensorChart data={selectedNode.history || []} dataKey="displacement" color="#C4820E" height={60} />
-            </div>
-            <div className="bg-mine-surface-alt p-3 rounded border border-mine-border">
-              <h4 className="text-xs uppercase tracking-wider text-mine-text-secondary mb-2">Tilt</h4>
-              <SensorChart data={selectedNode.history || []} dataKey="tilt" color="#2D8A4E" height={60} />
-            </div>
-            <div className="bg-mine-surface-alt p-3 rounded border border-mine-border">
-              <h4 className="text-xs uppercase tracking-wider text-mine-text-secondary mb-2">Vibration</h4>
-              <SensorChart data={selectedNode.history || []} dataKey="vibration" color="#C4362E" height={60} />
-            </div>
-            <div className="bg-mine-surface-alt p-3 rounded border border-mine-border">
-              <h4 className="text-xs uppercase tracking-wider text-mine-text-secondary mb-2">Temperature</h4>
-              <SensorChart data={selectedNode.history || []} dataKey="temperature" color="#D97706" height={60} />
-            </div>
+
+          <div className="grid grid-cols-1 sm:grid-cols-3 gap-4">
+            <SensorChart
+              label="Displacement History (mm)"
+              data={selectedSensor.history?.displacement || []}
+              dataKey="value"
+              color="#C4820E"
+              height={140}
+            />
+            <SensorChart
+              label="Tilt Angle History (°)"
+              data={selectedSensor.history?.tilt || []}
+              dataKey="value"
+              color="#D97706"
+              height={140}
+            />
+            <SensorChart
+              label="Vibration Waveform (g)"
+              data={selectedSensor.history?.vibration || []}
+              dataKey="value"
+              color="#C4362E"
+              height={140}
+            />
           </div>
         </div>
       )}
     </div>
   );
-};
-
-export default SensorNetwork;
+}

@@ -1,100 +1,117 @@
 import React from 'react';
+import { useMine } from '../context/MineContext';
 import RiskGauge from '../components/ui/RiskGauge';
 import SensorChart from '../components/ui/SensorChart';
+import StatusBadge from '../components/ui/StatusBadge';
+import { BrainCircuit, Info, Sparkles, TrendingUp } from 'lucide-react';
+import { useNavigate } from 'react-router-dom';
 
-const RiskAnalysis = ({ riskData, sensorData, lastSync }) => {
-  if (!riskData) return <div>Loading...</div>;
+export default function RiskAnalysis() {
+  const { aiPrediction, sensors = [] } = useMine();
+  const navigate = useNavigate();
 
-  const { overallRisk, overallCondition, highestRiskNode, factors, decision, riskHistory } = riskData;
+  const overallRisk = aiPrediction?.overallScore || 18;
+  const overallCondition = aiPrediction?.riskLevel || 'SAFE';
+  const factors = aiPrediction?.factors || {};
 
-  const getSeverityColor = (severity) => {
-    switch (severity?.toLowerCase()) {
-      case 'critical': return 'bg-status-critical-bg text-status-critical';
-      case 'high': return 'bg-status-critical-bg text-status-critical';
-      case 'warning':
-      case 'medium': return 'bg-status-warning-bg text-status-warning';
-      case 'low':
-      case 'safe': return 'bg-status-safe-bg text-status-safe';
-      default: return 'bg-mine-surface-alt text-mine-text-secondary';
-    }
-  };
+  const currentRiskColor =
+    overallRisk > 75 ? '#C4362E' : overallRisk > 50 ? '#C4820E' : overallRisk > 25 ? '#D97706' : '#2D8A4E';
 
-  const currentRiskColor = overallRisk > 75 ? '#C4362E' : overallRisk > 50 ? '#C4820E' : '#2D8A4E';
+  // Build risk history from forecast or sensor history
+  const dispSensor = sensors[0];
+  const historyData = dispSensor?.history?.displacement || [];
 
   return (
-    <div className="space-y-6">
-      <div>
-        <h1 className="text-2xl font-semibold text-mine-text-primary">Risk Analysis</h1>
-        <p className="text-mine-text-secondary text-sm mt-1">Prototype decision engine for ground stability assessment</p>
+    <div className="space-y-6 animate-fadeIn">
+      <div className="flex flex-wrap items-center justify-between gap-4">
+        <div>
+          <div className="flex items-center gap-2.5">
+            <h1 className="text-2xl font-bold tracking-tight text-mine-text-primary">
+              Strata Stability Risk Analysis
+            </h1>
+            <StatusBadge status={overallCondition} />
+          </div>
+          <p className="text-mine-text-secondary text-xs mt-1">
+            Dynamic strata deformation assessment engine • Multi-parameter hazard scoring
+          </p>
+        </div>
+
+        <button
+          type="button"
+          onClick={() => navigate('/ai-prediction')}
+          className="flex items-center gap-1.5 px-3 py-1.5 rounded text-xs font-semibold bg-mine-surface border border-mine-border text-mine-text-primary hover:bg-mine-surface-alt transition shadow-card"
+        >
+          <BrainCircuit className="h-4 w-4 text-status-attention" />
+          Full AI Prediction Engine &rarr;
+        </button>
       </div>
 
       <div className="grid grid-cols-1 lg:grid-cols-3 gap-6">
-        
         {/* Current Risk */}
-        <div className="card flex flex-col items-center justify-center p-6 lg:col-span-1">
-          <h2 className="text-lg font-semibold text-mine-text-primary mb-6 w-full text-left">Current Risk</h2>
-          <RiskGauge value={overallRisk} />
-          <div className="mt-6 text-center">
-            <h3 className="text-xl font-semibold text-mine-text-primary">{overallCondition}</h3>
-            <p className="text-mine-text-secondary text-sm mt-1">
-              Highest risk detected at node {highestRiskNode?.id || 'N/A'}
+        <div className="card flex flex-col items-center justify-between p-6 lg:col-span-1 bg-mine-surface border border-mine-border">
+          <div className="w-full flex items-center justify-between border-b border-mine-border pb-3">
+            <h2 className="text-xs font-bold uppercase tracking-wider text-mine-text-secondary">
+              Composite Strata Risk
+            </h2>
+            <StatusBadge status={overallCondition} />
+          </div>
+
+          <div className="my-6 w-full flex flex-col items-center">
+            <RiskGauge value={overallRisk} />
+            <p className="text-xs text-mine-text-secondary text-center mt-3">
+              {aiPrediction?.riskDescription}
             </p>
+          </div>
+
+          <div className="w-full text-xs text-mine-text-secondary pt-3 border-t border-mine-border flex justify-between">
+            <span>Sampling: 100 Hz</span>
+            <span className="font-mono">Zone B Priority</span>
           </div>
         </div>
 
         {/* Risk Timeline */}
-        <div className="card p-6 lg:col-span-2">
-          <h2 className="text-lg font-semibold text-mine-text-primary mb-4">Risk Timeline</h2>
-          <div className="text-xs uppercase tracking-wider text-mine-text-secondary mb-2">Risk Score — Last 30 Minutes</div>
-          <div className="h-48">
-            <SensorChart data={riskHistory || []} dataKey="value" color={currentRiskColor} />
+        <div className="card p-6 lg:col-span-2 bg-mine-surface border border-mine-border space-y-3">
+          <div className="flex items-center justify-between border-b border-mine-border pb-3">
+            <h2 className="text-xs font-bold uppercase tracking-wider text-mine-text-secondary">
+              Ground Displacement Waveform Trend
+            </h2>
+            <span className="text-xs font-mono text-mine-text-secondary">Rolling 30 Minutes</span>
           </div>
+          <SensorChart data={historyData} dataKey="value" color={currentRiskColor} height={180} />
         </div>
 
         {/* Contributing Factors */}
-        <div className="card p-6 lg:col-span-1">
-          <h2 className="text-lg font-semibold text-mine-text-primary mb-4">Contributing Factors</h2>
-          <div className="space-y-0">
-            {factors?.map((factor, idx) => (
-              <div key={idx} className="flex justify-between items-center py-3 border-b border-mine-border last:border-0">
-                <div className="flex flex-col">
-                  <span className="text-sm font-semibold text-mine-text-primary">{factor.name}</span>
-                  <span className="text-xs text-mine-text-secondary tabular-nums">{factor.raw}</span>
+        <div className="card p-6 lg:col-span-3 bg-mine-surface border border-mine-border space-y-4">
+          <div className="border-b border-mine-border pb-3 flex items-center justify-between">
+            <h2 className="text-xs font-bold uppercase tracking-wider text-mine-text-secondary">
+              Contributing Strata Factors Matrix
+            </h2>
+            <span className="text-xs text-mine-text-secondary">Weighted Ensemble Multi-Sensor Breakdown</span>
+          </div>
+
+          <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-5 gap-3 text-xs">
+            {Object.entries(factors).map(([key, factor]) => (
+              <div
+                key={key}
+                className="p-3.5 rounded bg-mine-surface-alt border border-mine-border space-y-1.5"
+              >
+                <div className="flex justify-between items-center">
+                  <span className="font-semibold text-mine-text-primary">{factor.label}</span>
+                  <StatusBadge status={factor.severity} />
                 </div>
-                <span className={`px-2.5 py-1 text-xs font-semibold rounded-full uppercase tracking-wider ${getSeverityColor(factor.severity)}`}>
-                  {factor.severity}
-                </span>
+                <div className="flex justify-between items-baseline pt-1">
+                  <span className="text-mine-text-secondary">Peak:</span>
+                  <strong className="font-mono text-mine-text-primary">{factor.peakValue} {factor.unit}</strong>
+                </div>
+                <div className="flex justify-between text-[11px] text-mine-text-secondary">
+                  <span>Weight: {(factor.weight * 100).toFixed(0)}%</span>
+                  <span>+{factor.contribution} pts</span>
+                </div>
               </div>
             ))}
           </div>
         </div>
-
-        {/* Model Decision */}
-        <div className="card p-6 lg:col-span-1">
-          <h2 className="text-lg font-semibold text-mine-text-primary mb-4">Assessment Output</h2>
-          <div className="bg-mine-surface-alt border border-mine-border rounded p-4 text-mine-text-primary font-medium text-sm leading-relaxed">
-            {decision}
-          </div>
-          <p className="text-xs text-mine-text-secondary mt-4 italic">
-            Generated by rule-based prototype decision engine. Not a trained AI model.
-          </p>
-        </div>
-
-        {/* Analysis Method */}
-        <div className="card p-6 lg:col-span-1">
-          <h2 className="text-lg font-semibold text-mine-text-primary mb-4">Analysis Method</h2>
-          <ol className="list-decimal list-inside space-y-2 text-sm text-mine-text-primary">
-            <li>Sensor normalization</li>
-            <li>Trend analysis</li>
-            <li>Anomaly detection</li>
-            <li>Multi-sensor correlation</li>
-            <li>Risk scoring</li>
-          </ol>
-        </div>
-
       </div>
     </div>
   );
-};
-
-export default RiskAnalysis;
+}
