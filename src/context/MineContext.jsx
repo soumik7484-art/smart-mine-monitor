@@ -24,6 +24,27 @@ export const MineProvider = ({ children }) => {
   const [selectedWorker, setSelectedWorker] = useState(null);
   const [selectedTunnel, setSelectedTunnel] = useState(null);
   const [zoneFilter, setZoneFilter] = useState('ALL');
+  const [theme, setTheme] = useState(() => {
+    if (typeof window !== 'undefined') {
+      return localStorage.getItem('mineguard_theme') || 'light';
+    }
+    return 'light';
+  });
+
+  useEffect(() => {
+    if (theme === 'dark') {
+      document.documentElement.classList.add('dark');
+    } else {
+      document.documentElement.classList.remove('dark');
+    }
+    try {
+      localStorage.setItem('mineguard_theme', theme);
+    } catch (e) {}
+  }, [theme]);
+
+  const toggleTheme = useCallback(() => {
+    setTheme((prev) => (prev === 'dark' ? 'light' : 'dark'));
+  }, []);
 
   // ─── Simulation Tick (2s) ─────────────────────────────────────────────
   useEffect(() => {
@@ -144,8 +165,11 @@ export const MineProvider = ({ children }) => {
     selectedWorker,
     selectedTunnel,
     zoneFilter,
+    theme,
+    isDarkMode: theme === 'dark',
 
     // Actions
+    toggleTheme,
     triggerSubsidence,
     triggerCollapse,
     resetToNormal,

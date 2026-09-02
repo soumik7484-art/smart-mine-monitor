@@ -10,6 +10,8 @@ import {
   RotateCcw,
   AlertTriangle,
   Flame,
+  Sun,
+  Moon,
 } from 'lucide-react';
 
 export default function TopBar() {
@@ -18,6 +20,8 @@ export default function TopBar() {
     alerts = [],
     isMuted,
     toggleMute,
+    toggleTheme,
+    isDarkMode,
     triggerSubsidence,
     triggerCollapse,
     resetToNormal,
@@ -129,6 +133,16 @@ export default function TopBar() {
 
       {/* Right: Quick Controls & Profile */}
       <div className="flex items-center gap-3">
+        {/* Dark / Light Mode Toggle */}
+        <button
+          type="button"
+          onClick={toggleTheme}
+          className="p-1.5 rounded border border-mine-border bg-mine-surface text-mine-text-secondary hover:text-mine-text-primary hover:bg-mine-surface-alt transition shadow-card"
+          title={isDarkMode ? 'Switch to Light Mode' : 'Switch to Dark Mode'}
+        >
+          {isDarkMode ? <Sun className="h-4 w-4 text-amber-400" /> : <Moon className="h-4 w-4 text-mine-text-primary" />}
+        </button>
+
         {/* Audio Mute/Unmute */}
         <button
           type="button"

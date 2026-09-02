@@ -8,6 +8,34 @@
 @tailwind utilities;
 
 @layer base {
+  :root {
+    --color-mine-bg: 245 242 236;            /* #F5F2EC */
+    --color-mine-surface: 255 255 255;       /* #FFFFFF */
+    --color-mine-surface-alt: 238 235 228;   /* #EEEBE4 */
+    --color-mine-text-primary: 41 39 34;     /* #292722 */
+    --color-mine-text-secondary: 111 106 97; /* #6F6A61 */
+    --color-mine-border: 216 211 202;        /* #D8D3CA */
+    --color-status-safe-bg: #E8F5EC;
+    --color-status-warning-bg: #FDF3E0;
+    --color-status-critical-bg: #FDECEB;
+    --color-status-attention-bg: #FEF3CD;
+    --color-status-offline-bg: #F3F4F6;
+  }
+
+  .dark {
+    --color-mine-bg: 18 19 22;               /* #121316 */
+    --color-mine-surface: 26 28 33;          /* #1A1C21 */
+    --color-mine-surface-alt: 35 38 45;      /* #23262D */
+    --color-mine-text-primary: 238 236 230;  /* #EEECE6 */
+    --color-mine-text-secondary: 156 163 175;/* #9CA3AF */
+    --color-mine-border: 49 53 62;           /* #31353E */
+    --color-status-safe-bg: rgba(45, 138, 78, 0.2);
+    --color-status-warning-bg: rgba(196, 130, 14, 0.2);
+    --color-status-critical-bg: rgba(196, 54, 46, 0.22);
+    --color-status-attention-bg: rgba(217, 119, 6, 0.22);
+    --color-status-offline-bg: #202228;
+  }
+
   html {
     font-feature-settings: 'cv02', 'cv03', 'cv04', 'cv11';
     -webkit-font-smoothing: antialiased;
@@ -26,16 +54,16 @@
   }
 
   ::-webkit-scrollbar-track {
-    background: #EEEBE4;
+    background: rgb(var(--color-mine-surface-alt));
   }
 
   ::-webkit-scrollbar-thumb {
-    background: #D8D3CA;
+    background: rgb(var(--color-mine-border));
     border-radius: 3px;
   }
 
   ::-webkit-scrollbar-thumb:hover {
-    background: #B8B3AA;
+    background: rgb(var(--color-mine-text-secondary));
   }
 }
 

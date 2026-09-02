@@ -26,7 +26,7 @@ import {
 } from 'lucide-react';
 
 export default function AIPredictionPage() {
-  const { aiPrediction, setIsSensorSimulatorOpen } = useMine();
+  const { aiPrediction, setIsSensorSimulatorOpen, isDarkMode } = useMine();
 
   const riskScore = aiPrediction?.overallScore || 18;
   const classification = aiPrediction?.riskLevel || 'SAFE';
@@ -210,7 +210,7 @@ export default function AIPredictionPage() {
                 }}
               />
               <Area type="monotone" dataKey="upper" fill="#C4362E" fillOpacity={0.08} stroke="none" />
-              <Area type="monotone" dataKey="lower" fill="#F5F2EC" fillOpacity={1} stroke="none" />
+              <Area type="monotone" dataKey="lower" fill={isDarkMode ? '#1C1E23' : '#FFFFFF'} fillOpacity={1} stroke="none" />
               <Line type="monotone" dataKey="predicted" stroke="#C4362E" strokeWidth={2.5} dot={false} />
               <Line type="monotone" dataKey="criticalThreshold" stroke="#C4362E" strokeDasharray="5 5" strokeWidth={1.5} dot={false} />
             </ComposedChart>

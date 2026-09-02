@@ -4,28 +4,29 @@ export default {
     './index.html',
     './src/**/*.{js,ts,jsx,tsx}',
   ],
+  darkMode: 'class',
   theme: {
     extend: {
       colors: {
         mine: {
-          bg: '#F5F2EC',
-          surface: '#FFFFFF',
-          'surface-alt': '#EEEBE4',
-          'text-primary': '#292722',
-          'text-secondary': '#6F6A61',
-          border: '#D8D3CA',
+          bg: 'rgb(var(--color-mine-bg) / <alpha-value>)',
+          surface: 'rgb(var(--color-mine-surface) / <alpha-value>)',
+          'surface-alt': 'rgb(var(--color-mine-surface-alt) / <alpha-value>)',
+          'text-primary': 'rgb(var(--color-mine-text-primary) / <alpha-value>)',
+          'text-secondary': 'rgb(var(--color-mine-text-secondary) / <alpha-value>)',
+          border: 'rgb(var(--color-mine-border) / <alpha-value>)',
         },
         status: {
           safe: '#2D8A4E',
-          'safe-bg': '#E8F5EC',
+          'safe-bg': 'var(--color-status-safe-bg, #E8F5EC)',
           warning: '#C4820E',
-          'warning-bg': '#FDF3E0',
+          'warning-bg': 'var(--color-status-warning-bg, #FDF3E0)',
           critical: '#C4362E',
-          'critical-bg': '#FDECEB',
+          'critical-bg': 'var(--color-status-critical-bg, #FDECEB)',
           attention: '#D97706',
-          'attention-bg': '#FEF3CD',
+          'attention-bg': 'var(--color-status-attention-bg, #FEF3CD)',
           offline: '#9CA3AF',
-          'offline-bg': '#F3F4F6',
+          'offline-bg': 'var(--color-status-offline-bg, #F3F4F6)',
         },
       },
       fontFamily: {
@@ -47,9 +48,9 @@ export default {
         'lg': '8px',
       },
       boxShadow: {
-        'card': '0 1px 2px rgba(0, 0, 0, 0.04)',
-        'card-hover': '0 2px 4px rgba(0, 0, 0, 0.06)',
-        'dropdown': '0 4px 12px rgba(0, 0, 0, 0.08)',
+        'card': '0 1px 2px rgba(0, 0, 0, 0.06)',
+        'card-hover': '0 2px 4px rgba(0, 0, 0, 0.08)',
+        'dropdown': '0 4px 12px rgba(0, 0, 0, 0.15)',
       },
       spacing: {
         '4.5': '1.125rem',

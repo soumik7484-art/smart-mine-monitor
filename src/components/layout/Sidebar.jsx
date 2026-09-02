@@ -14,6 +14,8 @@ import {
   Volume2,
   VolumeX,
   Activity,
+  Sun,
+  Moon,
 } from 'lucide-react';
 
 const navItems = [
@@ -31,6 +33,8 @@ export default function Sidebar() {
     emergencyModeActive,
     isMuted,
     toggleMute,
+    toggleTheme,
+    isDarkMode,
     setIsSensorSimulatorOpen,
     stats = {},
   } = useMine();
@@ -122,11 +126,17 @@ export default function Sidebar() {
             className="text-[11px] text-mine-text-secondary hover:text-mine-text-primary flex items-center gap-1 transition"
           >
             {isMuted ? <VolumeX className="h-3.5 w-3.5 text-status-critical" /> : <Volume2 className="h-3.5 w-3.5" />}
-            <span>{isMuted ? 'Muted' : 'Audio On'}</span>
+            <span>{isMuted ? 'Muted' : 'Audio'}</span>
           </button>
-          <span className="text-[10px] text-mine-text-secondary font-mono">
-            Ctrl+Shift+E: Alert
-          </span>
+          <button
+            type="button"
+            onClick={toggleTheme}
+            className="text-[11px] text-mine-text-secondary hover:text-mine-text-primary flex items-center gap-1 transition"
+            title={isDarkMode ? 'Switch to Light Mode' : 'Switch to Dark Mode'}
+          >
+            {isDarkMode ? <Sun className="h-3.5 w-3.5 text-amber-400" /> : <Moon className="h-3.5 w-3.5 text-mine-text-primary" />}
+            <span>{isDarkMode ? 'Light' : 'Dark'}</span>
+          </button>
         </div>
       </div>
     </aside>

@@ -36,6 +36,7 @@ export default function MineMap({ compact = false, height = 580, onSelectNode, o
     relocateWorker,
     selectedSensor,
     setSelectedSensor,
+    isDarkMode,
   } = useMine();
 
   const [zoom, setZoom] = useState(1);
@@ -205,7 +206,7 @@ export default function MineMap({ compact = false, height = 580, onSelectNode, o
 
       {/* SVG Canvas */}
       <div
-        className="relative w-full overflow-auto bg-[#F5F2EC] flex items-center justify-center p-2"
+        className="relative w-full overflow-auto bg-mine-bg flex items-center justify-center p-2"
         style={{ height }}
       >
         <svg
@@ -216,20 +217,20 @@ export default function MineMap({ compact = false, height = 580, onSelectNode, o
           <defs>
             {/* Survey Grid Pattern */}
             <pattern id="surveyGrid" width="40" height="40" patternUnits="userSpaceOnUse">
-              <path d="M 40 0 L 0 0 0 40" fill="none" stroke="#E3DED5" strokeWidth="0.75" />
-              <circle cx="0" cy="0" r="1.2" fill="#D0C9BE" />
+              <path d="M 40 0 L 0 0 0 40" fill="none" stroke={isDarkMode ? '#242730' : '#E3DED5'} strokeWidth="0.75" />
+              <circle cx="0" cy="0" r="1.2" fill={isDarkMode ? '#343844' : '#D0C9BE'} />
             </pattern>
 
             {/* Coal Pillar Hatching Pattern */}
             <pattern id="coalPillarHatch" width="8" height="8" patternUnits="userSpaceOnUse" patternTransform="rotate(45)">
-              <rect width="8" height="8" fill="#EEEBE4" />
-              <line x1="0" y1="0" x2="0" y2="8" stroke="#D8D3CA" strokeWidth="1.8" />
+              <rect width="8" height="8" fill={isDarkMode ? '#1E2026' : '#EEEBE4'} />
+              <line x1="0" y1="0" x2="0" y2="8" stroke={isDarkMode ? '#2D323E' : '#D8D3CA'} strokeWidth="1.8" />
             </pattern>
 
             {/* Caved Goaf Pattern */}
             <pattern id="goafTexture" width="12" height="12" patternUnits="userSpaceOnUse">
-              <rect width="12" height="12" fill="#E8E4DC" />
-              <path d="M 0 0 L 6 6 M 6 0 L 0 6" stroke="#C4BDB0" strokeWidth="1" />
+              <rect width="12" height="12" fill={isDarkMode ? '#22242B' : '#E8E4DC'} />
+              <path d="M 0 0 L 6 6 M 6 0 L 0 6" stroke={isDarkMode ? '#3E4350' : '#C4BDB0'} strokeWidth="1" />
             </pattern>
 
             {/* Collapsed Hazard Stripe Pattern */}
@@ -449,8 +450,8 @@ export default function MineMap({ compact = false, height = 580, onSelectNode, o
                       width="28"
                       height="12"
                       rx="2"
-                      fill="#FFFFFF"
-                      stroke={isInspected ? '#292722' : '#D8D3CA'}
+                      fill={isDarkMode ? '#242730' : '#FFFFFF'}
+                      stroke={isInspected ? (isDarkMode ? '#EDEAE4' : '#292722') : (isDarkMode ? '#3E4350' : '#D8D3CA')}
                       strokeWidth="1"
                     />
                     <text
@@ -458,7 +459,7 @@ export default function MineMap({ compact = false, height = 580, onSelectNode, o
                       y="3"
                       fontSize="7"
                       fontWeight="600"
-                      fill="#292722"
+                      fill={isDarkMode ? '#EDEAE4' : '#292722'}
                       fontFamily="Inter, sans-serif"
                     >
                       {tunnel.id}
@@ -512,13 +513,13 @@ export default function MineMap({ compact = false, height = 580, onSelectNode, o
                 onClick={() => handleNodeClick(n)}
                 className="cursor-pointer"
               >
-                <circle r="6" fill="#FFFFFF" stroke="#292722" strokeWidth="2" />
+                <circle r="6" fill={isDarkMode ? '#242730' : '#FFFFFF'} stroke={isDarkMode ? '#EDEAE4' : '#292722'} strokeWidth="2" />
                 <text
                   textAnchor="middle"
                   y="-10"
                   fontSize="8"
                   fontWeight="600"
-                  fill="#292722"
+                  fill={isDarkMode ? '#EDEAE4' : '#292722'}
                   fontFamily="Inter, sans-serif"
                 >
                   {n.id}
@@ -660,10 +661,10 @@ export default function MineMap({ compact = false, height = 580, onSelectNode, o
           </g>
 
           <g transform="translate(940, 40)">
-            <circle r="12" fill="#FFFFFF" stroke="#D8D3CA" strokeWidth="1" />
+            <circle r="12" fill={isDarkMode ? '#242730' : '#FFFFFF'} stroke={isDarkMode ? '#3E4350' : '#D8D3CA'} strokeWidth="1" />
             <polygon points="0,-9 3,0 -3,0" fill="#C4362E" />
-            <polygon points="0,9 3,0 -3,0" fill="#6F6A61" />
-            <text x="0" y="-12" textAnchor="middle" fontSize="7" fontWeight="bold" fill="#292722">
+            <polygon points="0,9 3,0 -3,0" fill={isDarkMode ? '#9CA3AF' : '#6F6A61'} />
+            <text x="0" y="-12" textAnchor="middle" fontSize="7" fontWeight="bold" fill={isDarkMode ? '#EDEAE4' : '#292722'}>
               N
             </text>
           </g>
