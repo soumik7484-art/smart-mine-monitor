@@ -7,15 +7,17 @@ import ErrorBoundary from '../ui/ErrorBoundary';
 import ToastContainer from '../ui/ToastContainer';
 import { EmergencyHUDModal } from '../modals/EmergencyHUDModal';
 import { SensorSimulatorModal } from '../modals/SensorSimulatorModal';
-import { AlertTriangle, X } from 'lucide-react';
+import { AlertTriangle, X, Menu } from 'lucide-react';
 
 export default function AppLayout() {
-  const { bannerNotification, setBannerNotification } = useMine();
+  const { bannerNotification, setBannerNotification, isSidebarOpen, setIsSidebarOpen } = useMine();
 
   return (
     <div className="flex h-screen w-full bg-mine-bg overflow-hidden text-mine-text-primary font-sans">
+      {/* Overlay Sidebar Drawer (not in flex flow) */}
       <Sidebar />
 
+      {/* Main content — full width now that sidebar is overlaid */}
       <div className="flex-1 flex flex-col h-full overflow-hidden">
         <TopBar />
 
@@ -42,6 +44,32 @@ export default function AppLayout() {
           </ErrorBoundary>
         </main>
       </div>
+
+      {/* ── Floating Navigation FAB ────────────────────────────────────────
+          Fixed bottom-left; glows on emergency mode.
+      ──────────────────────────────────────────────────────────────────── */}
+      <button
+        type="button"
+        onClick={() => setIsSidebarOpen((prev) => !prev)}
+        aria-label="Toggle navigation"
+        title="Open Navigation"
+        className={`fixed bottom-6 left-6 z-30 flex items-center gap-2.5 pl-3 pr-4 py-2.5 rounded-full shadow-lg
+          border transition-all duration-200 select-none
+          ${isSidebarOpen
+            ? 'bg-mine-surface border-mine-border text-mine-text-secondary'
+            : 'bg-mine-surface border-mine-border text-mine-text-primary hover:border-mine-text-secondary hover:shadow-xl active:scale-95'
+          }
+        `}
+      >
+        <span className={`transition-transform duration-300 ${isSidebarOpen ? 'rotate-90' : 'rotate-0'}`}>
+          <Menu className="h-4 w-4" />
+        </span>
+        <span className="text-xs font-semibold tracking-wide">
+          {isSidebarOpen ? 'Close' : 'Navigate'}
+        </span>
+        {/* Live indicator pip */}
+        <span className="w-1.5 h-1.5 rounded-full bg-status-safe animate-pulse flex-shrink-0" />
+      </button>
 
       {/* Global Modals Layer & Toasts */}
       <EmergencyHUDModal />

@@ -20,6 +20,7 @@ export const MineProvider = ({ children }) => {
   const [isEmergencyHUDOpen, setIsEmergencyHUDOpen] = useState(false);
   const [isSIHTourOpen, setIsSIHTourOpen] = useState(false);
   const [isSensorSimulatorOpen, setIsSensorSimulatorOpen] = useState(false);
+  const [isSidebarOpen, setIsSidebarOpen] = useState(false);
   const [selectedSensor, setSelectedSensor] = useState(null);
   const [selectedWorker, setSelectedWorker] = useState(null);
   const [selectedTunnel, setSelectedTunnel] = useState(null);
@@ -199,6 +200,7 @@ export const MineProvider = ({ children }) => {
     isEmergencyHUDOpen,
     isSIHTourOpen,
     isSensorSimulatorOpen,
+    isSidebarOpen,
     selectedSensor,
     selectedWorker,
     selectedTunnel,
@@ -223,6 +225,7 @@ export const MineProvider = ({ children }) => {
     setIsEmergencyHUDOpen,
     setIsSIHTourOpen,
     setIsSensorSimulatorOpen,
+    setIsSidebarOpen,
     setSelectedSensor,
     setSelectedWorker,
     setSelectedTunnel,
