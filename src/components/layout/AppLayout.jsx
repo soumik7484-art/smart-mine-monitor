@@ -5,7 +5,6 @@ import Sidebar from './Sidebar';
 import TopBar from './TopBar';
 import ErrorBoundary from '../ui/ErrorBoundary';
 import { EmergencyHUDModal } from '../modals/EmergencyHUDModal';
-import { SIHDemoTourModal } from '../modals/SIHDemoTourModal';
 import { SensorSimulatorModal } from '../modals/SensorSimulatorModal';
 import { AlertTriangle, X } from 'lucide-react';
 
@@ -45,7 +44,6 @@ export default function AppLayout() {
 
       {/* Global Modals Layer */}
       <EmergencyHUDModal />
-      <SIHDemoTourModal />
       <SensorSimulatorModal />
     </div>
   );

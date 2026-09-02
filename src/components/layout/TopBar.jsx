@@ -22,7 +22,6 @@ export default function TopBar() {
     triggerCollapse,
     resetToNormal,
     advanceEvacuation,
-    setIsSIHTourOpen,
     setIsSensorSimulatorOpen,
     setIsEmergencyHUDOpen,
     emergencyModeActive,
@@ -120,21 +119,11 @@ export default function TopBar() {
         <button
           type="button"
           onClick={() => setIsSensorSimulatorOpen(true)}
-          className="flex items-center gap-1 px-2 py-1 rounded text-xs font-medium text-mine-text-secondary hover:text-mine-text-primary hover:bg-mine-surface transition"
+          className="flex items-center gap-1 px-2.5 py-1 rounded text-xs font-semibold bg-mine-surface border border-mine-border text-mine-text-primary hover:bg-mine-surface-alt transition shadow-card"
           title="Open IoT Strata Telemetry Injector Sliders"
         >
-          <Sliders className="h-3.5 w-3.5" />
-          <span className="hidden xl:inline">Injector</span>
-        </button>
-
-        <button
-          type="button"
-          onClick={() => setIsSIHTourOpen(true)}
-          className="flex items-center gap-1 px-2.5 py-1 rounded text-xs font-bold bg-mine-text-primary text-white hover:opacity-90 transition shadow-sm"
-          title="Launch Guided SIH Demonstration Tour"
-        >
-          <Sparkles className="h-3.5 w-3.5 text-amber-300" />
-          SIH Tour
+          <Sliders className="h-3.5 w-3.5 text-status-attention" />
+          <span>Strata Injector</span>
         </button>
       </div>
 

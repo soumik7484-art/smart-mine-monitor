@@ -31,7 +31,6 @@ export default function Sidebar() {
     emergencyModeActive,
     isMuted,
     toggleMute,
-    setIsSIHTourOpen,
     setIsSensorSimulatorOpen,
     stats = {},
   } = useMine();
@@ -88,24 +87,15 @@ export default function Sidebar() {
 
         {/* Quick Launchers */}
         <div className="pt-4 px-3 py-1 text-[10px] font-bold uppercase tracking-wider text-mine-text-secondary">
-          Demonstration Tools
+          Simulation Controls
         </div>
 
         <button
           type="button"
-          onClick={() => setIsSIHTourOpen(true)}
+          onClick={() => setIsSensorSimulatorOpen(true)}
           className="w-full flex items-center gap-2.5 px-3 py-2 rounded text-xs font-semibold text-mine-text-primary bg-mine-surface border border-mine-border hover:bg-mine-surface-alt transition shadow-card"
         >
-          <Sparkles className="h-4 w-4 text-status-attention" />
-          <span>Launch SIH Tour Modal</span>
-        </button>
-
-        <button
-          type="button"
-          onClick={() => setIsSensorSimulatorOpen(true)}
-          className="w-full flex items-center gap-2.5 px-3 py-2 rounded text-xs font-medium text-mine-text-secondary hover:text-mine-text-primary hover:bg-mine-surface transition"
-        >
-          <Sliders className="h-4 w-4" />
+          <Sliders className="h-4 w-4 text-status-attention" />
           <span>Strata Telemetry Sliders</span>
         </button>
       </nav>
