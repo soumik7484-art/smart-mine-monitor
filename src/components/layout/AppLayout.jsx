@@ -4,6 +4,7 @@ import { useMine } from '../../context/MineContext';
 import Sidebar from './Sidebar';
 import TopBar from './TopBar';
 import ErrorBoundary from '../ui/ErrorBoundary';
+import ToastContainer from '../ui/ToastContainer';
 import { EmergencyHUDModal } from '../modals/EmergencyHUDModal';
 import { SensorSimulatorModal } from '../modals/SensorSimulatorModal';
 import { AlertTriangle, X } from 'lucide-react';
@@ -42,9 +43,10 @@ export default function AppLayout() {
         </main>
       </div>
 
-      {/* Global Modals Layer */}
+      {/* Global Modals Layer & Toasts */}
       <EmergencyHUDModal />
       <SensorSimulatorModal />
+      <ToastContainer />
     </div>
   );
 }

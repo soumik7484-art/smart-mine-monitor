@@ -30,6 +30,24 @@ export const MineProvider = ({ children }) => {
     }
     return 'light';
   });
+  const [toasts, setToasts] = useState([]);
+
+  const addToast = useCallback(({ title, message, type = 'info', duration = 5000 }) => {
+    const id = Date.now() + Math.random().toString(36).substring(2, 5);
+    const now = new Date();
+    const time = now.toLocaleTimeString([], { hour: '2-digit', minute: '2-digit', second: '2-digit' });
+    const newToast = { id, title, message, type, time };
+    setToasts((prev) => [newToast, ...prev].slice(0, 5));
+    if (duration > 0) {
+      setTimeout(() => {
+        setToasts((prev) => prev.filter((t) => t.id !== id));
+      }, duration);
+    }
+  }, []);
+
+  const removeToast = useCallback((id) => {
+    setToasts((prev) => prev.filter((t) => t.id !== id));
+  }, []);
 
   useEffect(() => {
     if (theme === 'dark') {
@@ -82,8 +100,13 @@ export const MineProvider = ({ children }) => {
     setMineState(engine.getState());
     audioSynth.playWarning();
     setBannerNotification(`⚠️ SUBSIDENCE ALERT: Accelerating ground displacement detected in Zone B`);
+    addToast({
+      title: 'Subsidence Alert',
+      message: 'Accelerating ground displacement detected in Zone B (LVDT #3)',
+      type: 'warning',
+    });
     return result;
-  }, [engine]);
+  }, [engine, addToast]);
 
   const triggerCollapse = useCallback((tunnelId = 'T-12') => {
     const result = engine.triggerCollapse(tunnelId);
@@ -91,9 +114,14 @@ export const MineProvider = ({ children }) => {
     audioSynth.playWarning();
     if (!isMuted) audioSynth.startSiren();
     setBannerNotification(`🚨 ROUTE UPDATED: Previous route through ${tunnelId} is unsafe. Alternative safe evacuation route calculated.`);
+    addToast({
+      title: `Tunnel Collapse: ${tunnelId}`,
+      message: 'Detour computed! Safe alternate path via Crosscut-4 to Exit E1',
+      type: 'critical',
+    });
     setIsEmergencyHUDOpen(true);
     return result;
-  }, [engine, isMuted]);
+  }, [engine, isMuted, addToast]);
 
   const resetToNormal = useCallback(() => {
     engine.resetToNormal();
@@ -103,13 +131,23 @@ export const MineProvider = ({ children }) => {
     setBannerNotification(null);
     setIsEmergencyHUDOpen(false);
     setBannerNotification('✅ System restored to normal operations.');
-  }, [engine]);
+    addToast({
+      title: 'Baseline Restored',
+      message: 'All sensors and gallery tunnels restored to nominal state.',
+      type: 'success',
+    });
+  }, [engine, addToast]);
 
   const advanceEvacuation = useCallback(() => {
     engine.advanceEvacuation();
     setMineState(engine.getState());
     audioSynth.playClick();
-  }, [engine]);
+    addToast({
+      title: 'Evacuation Step Advanced',
+      message: 'Miners stepped 1 junction forward along safe computed detour.',
+      type: 'info',
+    });
+  }, [engine, addToast]);
 
   const toggleTunnelBlock = useCallback((tunnelId) => {
     engine.toggleTunnelBlock(tunnelId);
@@ -167,8 +205,11 @@ export const MineProvider = ({ children }) => {
     zoneFilter,
     theme,
     isDarkMode: theme === 'dark',
+    toasts,
 
     // Actions
+    addToast,
+    removeToast,
     toggleTheme,
     triggerSubsidence,
     triggerCollapse,
