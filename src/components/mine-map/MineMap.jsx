@@ -22,6 +22,8 @@ import {
   UWB_ANCHORS,
   ZONES,
 } from '../../data/mineData';
+import MinerDetailPopup from './MinerDetailPopup';
+
 
 export default function MineMap({ compact = false, height = 580, onSelectNode, onSelectTunnel }) {
   const {
@@ -50,6 +52,8 @@ export default function MineMap({ compact = false, height = 580, onSelectNode, o
   // Inspector state
   const [inspectedTunnel, setInspectedTunnel] = useState(null);
   const [inspectedNode, setInspectedNode] = useState(null);
+  const [inspectedWorker, setInspectedWorker] = useState(null);
+  const [selectedRouteWorkerId, setSelectedRouteWorkerId] = useState(null);
 
   const nodeMap = useMemo(() => {
     const map = new Map();
@@ -60,9 +64,14 @@ export default function MineMap({ compact = false, height = 580, onSelectNode, o
 
   const evacuatingWorkers = workers.filter((w) => w.status === 'EVACUATING');
 
-  // Active route to highlight (default to first evacuating worker or active worker)
-  const targetWorker = workers.find((w) => w.id === activeRouteWorkerId) || evacuatingWorkers[0] || workers[0];
+  // Active route to highlight (user-selected worker > activeRouteWorkerId > first evacuating worker > workers[0])
+  const targetWorker =
+    (selectedRouteWorkerId && workers.find((w) => w.id === selectedRouteWorkerId)) ||
+    workers.find((w) => w.id === activeRouteWorkerId) ||
+    evacuatingWorkers[0] ||
+    workers[0];
   const activeRoute = targetWorker ? workerRoutes[targetWorker.id] : null;
+
 
   const routePoints = useMemo(() => {
     if (!activeRoute || !activeRoute.routeNodes || activeRoute.routeNodes.length < 2) return '';
@@ -616,12 +625,28 @@ export default function MineMap({ compact = false, height = 580, onSelectNode, o
                 const parentNode = nodeMap.get(w.nodeId);
                 if (!parentNode) return null;
                 const isEvac = w.status === 'EVACUATING';
+                const isSelected = inspectedWorker?.id === w.id;
                 const angle = ((idx * 45) * Math.PI) / 180;
                 const wx = parentNode.x + Math.cos(angle) * 16;
                 const wy = parentNode.y + Math.sin(angle) * 16;
 
                 return (
-                  <g key={w.id} transform={`translate(${wx}, ${wy})`}>
+                  <g
+                    key={w.id}
+                    transform={`translate(${wx}, ${wy})`}
+                    onClick={(e) => {
+                      e.stopPropagation();
+                      setInspectedWorker(w);
+                      setSelectedRouteWorkerId(w.id);
+                      setInspectedTunnel(null);
+                      setInspectedNode(null);
+                    }}
+                    className="cursor-pointer"
+                  >
+                    {/* Selection ring */}
+                    {isSelected && (
+                      <circle r="10" fill="none" stroke="#06B6D4" strokeWidth="2" opacity="0.9" />
+                    )}
                     {isEvac && (
                       <circle r="9" fill="none" stroke="#C4362E" strokeWidth="1.5">
                         <animate attributeName="r" values="7;14;7" dur="1.2s" repeatCount="indefinite" />
@@ -629,17 +654,28 @@ export default function MineMap({ compact = false, height = 580, onSelectNode, o
                       </circle>
                     )}
                     <circle
-                      r="5"
-                      fill={isEvac ? '#C4362E' : '#292722'}
+                      r="6"
+                      fill={isEvac ? '#C4362E' : isSelected ? '#06B6D4' : '#3D3530'}
                       stroke="#FFFFFF"
                       strokeWidth="1.5"
                     />
+                    {/* Hard hat icon (tiny triangle) */}
                     <text
                       textAnchor="middle"
-                      y="14"
+                      y="2"
+                      fontSize="5"
+                      fontWeight="bold"
+                      fill="#FFFFFF"
+                      fontFamily="Inter, sans-serif"
+                    >
+                      ⛏
+                    </text>
+                    <text
+                      textAnchor="middle"
+                      y="16"
                       fontSize="7"
                       fontWeight="600"
-                      fill={isEvac ? '#C4362E' : '#292722'}
+                      fill={isEvac ? '#C4362E' : isSelected ? '#06B6D4' : '#FFFFFF'}
                       fontFamily="Inter, sans-serif"
                     >
                       {w.id}
@@ -649,6 +685,7 @@ export default function MineMap({ compact = false, height = 580, onSelectNode, o
               })}
             </g>
           )}
+
 
           {/* Scale & North Arrow */}
           <g transform="translate(40, 550)">
@@ -716,6 +753,19 @@ export default function MineMap({ compact = false, height = 580, onSelectNode, o
             </button>
           </div>
         )}
+
+        {/* ── Miner Detail Popup ─────────────────────────────────────────── */}
+        {inspectedWorker && (
+          <MinerDetailPopup
+            worker={workers.find((w) => w.id === inspectedWorker.id) || inspectedWorker}
+            route={workerRoutes[inspectedWorker.id] || null}
+            onClose={() => setInspectedWorker(null)}
+            onHighlightRoute={(workerId) => {
+              setSelectedRouteWorkerId(workerId);
+            }}
+          />
+        )}
+
       </div>
     </div>
   );

@@ -164,15 +164,19 @@ function createSensors() {
 }
 
 // ─── Initial Worker Configuration ───────────────────────────────────────
+// heartRate: BPM from smart helmet biometric sensor (simulated)
+// tagBattery: Smart Tag UWB node battery % 
+// xCoord, yCoord: UWB anchor-triangulated underground position (m)
+// seamDepth: depth below surface (negative = underground, m)
 export const INITIAL_WORKERS = [
-  { id: 'W-001', name: 'Rajesh Kumar', zone: 'A', nodeId: 'J7', role: 'Face Worker', helmet: 'Connected', status: 'SAFE', movement: 'Normal' },
-  { id: 'W-002', name: 'Suresh Mahato', zone: 'A', nodeId: 'J8', role: 'Support Man', helmet: 'Connected', status: 'SAFE', movement: 'Normal' },
-  { id: 'W-003', name: 'Amit Singh', zone: 'B', nodeId: 'J9', role: 'Overman', helmet: 'Connected', status: 'SAFE', movement: 'Normal' },
-  { id: 'W-004', name: 'Pradeep Yadav', zone: 'B', nodeId: 'J10', role: 'Face Worker', helmet: 'Connected', status: 'SAFE', movement: 'Normal' },
-  { id: 'W-005', name: 'Vikram Das', zone: 'C', nodeId: 'J11', role: 'Electrician', helmet: 'Connected', status: 'SAFE', movement: 'Stationary' },
-  { id: 'W-006', name: 'Manoj Oraon', zone: 'C', nodeId: 'J12', role: 'Face Worker', helmet: 'Connected', status: 'SAFE', movement: 'Normal' },
-  { id: 'W-007', name: 'Dinesh Tudu', zone: 'D', nodeId: 'J13', role: 'Shotfirer', helmet: 'Connected', status: 'SAFE', movement: 'Normal' },
-  { id: 'W-008', name: 'Bablu Hansda', zone: 'D', nodeId: 'J14', role: 'Support Man', helmet: 'Disconnected', status: 'SAFE', movement: 'Stationary' },
+  { id: 'W-001', name: 'Rajesh Kumar',   zone: 'A', nodeId: 'J7',  role: 'Face Worker',      helmet: 'Connected',    status: 'SAFE', movement: 'Normal',      heartRate: 72,  tagBattery: 94, xCoord: 230, yCoord: 220, seamDepth: -120 },
+  { id: 'W-002', name: 'Suresh Mahato',  zone: 'A', nodeId: 'J8',  role: 'Support Man',      helmet: 'Connected',    status: 'SAFE', movement: 'Normal',      heartRate: 68,  tagBattery: 88, xCoord: 230, yCoord: 370, seamDepth: -155 },
+  { id: 'W-003', name: 'Amit Singh',     zone: 'B', nodeId: 'J9',  role: 'Overman',          helmet: 'Connected',    status: 'SAFE', movement: 'Normal',      heartRate: 75,  tagBattery: 91, xCoord: 400, yCoord: 220, seamDepth: -130 },
+  { id: 'W-004', name: 'Pradeep Yadav',  zone: 'B', nodeId: 'J10', role: 'Face Worker',      helmet: 'Connected',    status: 'SAFE', movement: 'Normal',      heartRate: 80,  tagBattery: 96, xCoord: 400, yCoord: 370, seamDepth: -160 },
+  { id: 'W-005', name: 'Vikram Das',     zone: 'C', nodeId: 'J11', role: 'Electrician',      helmet: 'Connected',    status: 'SAFE', movement: 'Stationary',  heartRate: 65,  tagBattery: 79, xCoord: 570, yCoord: 220, seamDepth: -125 },
+  { id: 'W-006', name: 'Manoj Oraon',    zone: 'C', nodeId: 'J12', role: 'Face Worker',      helmet: 'Connected',    status: 'SAFE', movement: 'Normal',      heartRate: 78,  tagBattery: 83, xCoord: 570, yCoord: 370, seamDepth: -158 },
+  { id: 'W-007', name: 'Dinesh Tudu',    zone: 'D', nodeId: 'J13', role: 'Shotfirer',        helmet: 'Connected',    status: 'SAFE', movement: 'Normal',      heartRate: 82,  tagBattery: 76, xCoord: 740, yCoord: 220, seamDepth: -135 },
+  { id: 'W-008', name: 'Bablu Hansda',   zone: 'D', nodeId: 'J14', role: 'Support Man',      helmet: 'Disconnected', status: 'SAFE', movement: 'Stationary',  heartRate: 0,   tagBattery: 12, xCoord: 740, yCoord: 370, seamDepth: -162 },
 ];
 
 export const INITIAL_SENSORS = createSensors();
