@@ -1,4 +1,4 @@
-﻿// MINEGUARD AI — Central React Context
+// MINEGUARD AI — Central React Context
 // Replaces App.jsx prop drilling with context-based state management
 // Integrates simulation engine + background ML backend health & polling bridge
 // Tracks real-time interactive incident audit log for all manual & automated map/sensor changes
@@ -57,12 +57,65 @@ export const MineProvider = ({ children }) => {
     return INITIAL_STATUTORY_INCIDENTS;
   });
 
+  // Parse admin session from URL parameter (?session=...) or localStorage
+  const parseInitialSession = () => {
+    try {
+      if (typeof window !== 'undefined') {
+        const urlParams = new URLSearchParams(window.location.search);
+        let sessionParam = urlParams.get('session');
+
+        if (!sessionParam && window.location.hash.includes('session=')) {
+          const hashParts = window.location.hash.split('?');
+          if (hashParts.length > 1) {
+            const hashParams = new URLSearchParams(hashParts[1]);
+            sessionParam = hashParams.get('session');
+          }
+        }
+
+        if (sessionParam) {
+          const decoded = JSON.parse(decodeURIComponent(sessionParam));
+          localStorage.setItem('mineguard_active_session', JSON.stringify(decoded));
+          const cleanUrl = window.location.pathname + window.location.hash.split('?')[0];
+          window.history.replaceState({}, document.title, cleanUrl);
+          return decoded;
+        }
+
+        const raw = localStorage.getItem('mineguard_active_session');
+        if (raw) return JSON.parse(raw);
+      }
+    } catch (e) {
+      console.warn('Failed to parse admin session:', e);
+    }
+    return null;
+  };
+
+  // Active Admin Session (from Admin Registration & Blueprint Portal)
+  const [adminSession, setAdminSession] = useState(parseInitialSession);
+
+  // Sync custom workers into simulation engine when adminSession is loaded
+  useEffect(() => {
+    if (adminSession?.miners && Array.isArray(adminSession.miners) && adminSession.miners.length > 0) {
+      engine.loadCustomWorkers(adminSession.miners);
+      setMineState(engine.getState());
+    }
+  }, [adminSession, engine]);
+
+  const clearAdminSession = useCallback(() => {
+    try {
+      localStorage.removeItem('mineguard_active_session');
+    } catch (e) {}
+    setAdminSession(null);
+    engine.resetCustomWorkers();
+    setMineState(engine.getState());
+  }, [engine]);
+
   // Sync incident log to localStorage
   useEffect(() => {
     try {
       localStorage.setItem('mineguard_incident_log', JSON.stringify(incidentLog));
     } catch (e) {}
   }, [incidentLog]);
+
 
   // Method to log an incident event into the audit record
   const logIncident = useCallback(({ location, event, risk = 'MEDIUM', action, status = 'ACTIVE' }) => {
@@ -443,6 +496,8 @@ export const MineProvider = ({ children }) => {
     toasts,
     mlBackendState,
     incidentLog,
+    adminSession,
+    clearAdminSession,
 
     // Actions
     addToast,
