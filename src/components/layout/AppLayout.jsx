@@ -7,6 +7,7 @@ import ErrorBoundary from '../ui/ErrorBoundary';
 import ToastContainer from '../ui/ToastContainer';
 import { EmergencyHUDModal } from '../modals/EmergencyHUDModal';
 import { SensorSimulatorModal } from '../modals/SensorSimulatorModal';
+import { AddMinerModal } from '../modals/AddMinerModal';
 import { AlertTriangle, X, Menu } from 'lucide-react';
 
 export default function AppLayout() {
@@ -74,6 +75,7 @@ export default function AppLayout() {
       {/* Global Modals Layer & Toasts */}
       <EmergencyHUDModal />
       <SensorSimulatorModal />
+      <AddMinerModal />
       <ToastContainer />
     </div>
   );

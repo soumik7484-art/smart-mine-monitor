@@ -13,6 +13,9 @@ import {
   Clock,
   Radio,
   RotateCcw,
+  UserPlus,
+  LogOut,
+  ExternalLink,
 } from 'lucide-react';
 
 export default function TopBar() {
@@ -32,6 +35,8 @@ export default function TopBar() {
     emergencyModeActive,
     adminSession,
     clearAdminSession,
+    logoutAdmin,
+    setIsAddMinerModalOpen,
   } = useMine();
 
   const [currentTime, setCurrentTime] = useState(() => new Date());
@@ -226,28 +231,53 @@ export default function TopBar() {
           )}
         </div>
 
-        {/* Operator Profile */}
+        {/* Operator Profile & Admin Actions */}
         <div className="flex items-center gap-2 pl-2 border-l border-mine-border">
-          <div className="w-7 h-7 rounded-full bg-gradient-to-tr from-amber-500 to-amber-700 text-white flex items-center justify-center text-xs font-bold shadow-sm">
+          <div className="w-7 h-7 rounded-full bg-gradient-to-tr from-amber-500 to-amber-700 text-white flex items-center justify-center text-xs font-bold shadow-sm flex-shrink-0">
             {adminSession?.admin?.fullName ? adminSession.admin.fullName.slice(0, 2).toUpperCase() : 'DG'}
           </div>
           <div className="hidden lg:block text-left">
-            <span className="text-xs font-semibold text-mine-text-primary block leading-none truncate max-w-[140px]">
+            <span className="text-xs font-semibold text-mine-text-primary block leading-none truncate max-w-[130px]">
               {adminSession?.admin?.fullName || 'Safety Controller'}
             </span>
-            <span className="text-[10px] text-mine-text-secondary truncate max-w-[140px] block">
+            <span className="text-[10px] text-mine-text-secondary truncate max-w-[130px] block">
               {adminSession?.admin?.role || 'DGMS Portal'}
             </span>
           </div>
-          {adminSession && (
+
+          {/* Quick Add Miner Button */}
+          <button
+            type="button"
+            onClick={() => setIsAddMinerModalOpen(true)}
+            className="flex items-center gap-1 text-[11px] px-2.5 py-1 rounded bg-status-attention/15 border border-status-attention/40 text-status-attention hover:bg-status-attention hover:text-white transition font-semibold shadow-sm"
+            title="Deploy new miner underground"
+          >
+            <UserPlus className="h-3.5 w-3.5" />
+            <span className="hidden md:inline">Add Miner</span>
+          </button>
+
+          {/* Admin Logout Button */}
+          {adminSession ? (
             <button
               type="button"
-              onClick={clearAdminSession}
-              className="text-[10px] px-2 py-0.5 rounded border border-red-500/30 text-red-500 hover:bg-red-500/10 transition ml-1 font-semibold"
-              title="End shift and revert to default colliery settings"
+              onClick={() => logoutAdmin(false)}
+              className="flex items-center gap-1 text-[11px] px-2.5 py-1 rounded bg-red-500/10 border border-red-500/30 text-red-500 hover:bg-red-500 hover:text-white transition font-semibold shadow-sm"
+              title="Logout as Admin and revert shift baseline"
             >
-              Reset Shift
+              <LogOut className="h-3.5 w-3.5" />
+              <span>Logout</span>
             </button>
+          ) : (
+            <a
+              href="http://localhost:5000/"
+              target="_blank"
+              rel="noopener noreferrer"
+              className="flex items-center gap-1 text-[11px] px-2.5 py-1 rounded bg-mine-surface border border-mine-border text-mine-text-secondary hover:text-mine-text-primary hover:bg-mine-surface-alt transition font-semibold shadow-card"
+              title="Open Admin Registration & Blueprint Upload Portal"
+            >
+              <ExternalLink className="h-3 w-3" />
+              <span className="hidden sm:inline">Admin Login</span>
+            </a>
           )}
         </div>
       </div>

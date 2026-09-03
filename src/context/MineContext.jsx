@@ -35,6 +35,7 @@ export const MineProvider = ({ children }) => {
   const [isEmergencyHUDOpen, setIsEmergencyHUDOpen] = useState(false);
   const [isSIHTourOpen, setIsSIHTourOpen] = useState(false);
   const [isSensorSimulatorOpen, setIsSensorSimulatorOpen] = useState(false);
+  const [isAddMinerModalOpen, setIsAddMinerModalOpen] = useState(false);
   const [isSidebarOpen, setIsSidebarOpen] = useState(false);
   const [selectedSensor, setSelectedSensor] = useState(null);
   const [selectedWorker, setSelectedWorker] = useState(null);
@@ -108,6 +109,68 @@ export const MineProvider = ({ children }) => {
     engine.resetCustomWorkers();
     setMineState(engine.getState());
   }, [engine]);
+
+  // Comprehensive Admin Logout (resets session and optionally redirects to admin frontpage portal)
+  const logoutAdmin = useCallback((redirectToPortal = false) => {
+    try {
+      localStorage.removeItem('mineguard_active_session');
+    } catch (e) {}
+    if (typeof window !== 'undefined') {
+      const cleanUrl = window.location.pathname + window.location.hash.split('?')[0];
+      window.history.replaceState({}, document.title, cleanUrl);
+    }
+    setAdminSession(null);
+    engine.resetCustomWorkers();
+    setMineState(engine.getState());
+    addToast({
+      title: 'Logged Out',
+      message: 'Admin session closed. Reverted to standard shift baseline.',
+      type: 'info',
+    });
+    if (redirectToPortal && typeof window !== 'undefined') {
+      setTimeout(() => {
+        window.location.href = 'http://localhost:5000/';
+      }, 400);
+    }
+  }, [engine, addToast]);
+
+  // Dynamically add a miner directly from the dashboard
+  const addMiner = useCallback((minerData) => {
+    const newWorker = engine.addWorker(minerData);
+    setMineState(engine.getState());
+
+    // Update persistent adminSession in state & localStorage so the miner stays saved
+    setAdminSession((prev) => {
+      const currentMiners = prev?.miners && Array.isArray(prev.miners) ? prev.miners : [];
+      const updatedSession = prev
+        ? { ...prev, miners: [...currentMiners, newWorker] }
+        : {
+            timestamp: Date.now(),
+            admin: { fullName: 'Safety Controller', role: 'Mine Manager', mineName: 'Chandrapur Deep Mine' },
+            miners: [...engine.getState().workers],
+          };
+      try {
+        localStorage.setItem('mineguard_active_session', JSON.stringify(updatedSession));
+      } catch (e) {}
+      return updatedSession;
+    });
+
+    logIncident({
+      location: `Zone ${newWorker.zone} — Node ${newWorker.nodeId}`,
+      event: `New underground personnel deployed: ${newWorker.name} (${newWorker.id})`,
+      risk: 'LOW',
+      action: `Smart helmet registered (${newWorker.helmet}); UWB tracking linked to junction ${newWorker.nodeId}`,
+      status: 'ACTIVE',
+    });
+
+    addToast({
+      title: 'Miner Deployed',
+      message: `${newWorker.name} (${newWorker.id}) deployed to Node ${newWorker.nodeId} in Zone ${newWorker.zone}.`,
+      type: 'success',
+    });
+
+    return newWorker;
+  }, [engine, logIncident, addToast]);
 
   // Sync incident log to localStorage
   useEffect(() => {
@@ -493,6 +556,7 @@ export const MineProvider = ({ children }) => {
     isEmergencyHUDOpen,
     isSIHTourOpen,
     isSensorSimulatorOpen,
+    isAddMinerModalOpen,
     isSidebarOpen,
     selectedSensor,
     selectedWorker,
@@ -505,8 +569,10 @@ export const MineProvider = ({ children }) => {
     incidentLog,
     adminSession,
     clearAdminSession,
+    logoutAdmin,
 
     // Actions
+    addMiner,
     addToast,
     removeToast,
     toggleTheme,
@@ -524,6 +590,7 @@ export const MineProvider = ({ children }) => {
     setIsEmergencyHUDOpen,
     setIsSIHTourOpen,
     setIsSensorSimulatorOpen,
+    setIsAddMinerModalOpen,
     setIsSidebarOpen,
     setSelectedSensor,
     setSelectedWorker,

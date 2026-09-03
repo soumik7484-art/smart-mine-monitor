@@ -11,6 +11,7 @@ import {
   DoorOpen,
   AlertTriangle,
   X,
+  UserPlus,
 } from 'lucide-react';
 import {
   MINE_NODES,
@@ -39,6 +40,7 @@ export default function MineMap({ compact = false, height = 580, onSelectNode, o
     selectedSensor,
     setSelectedSensor,
     isDarkMode,
+    setIsAddMinerModalOpen,
   } = useMine();
 
   const [zoom, setZoom] = useState(1);
@@ -179,6 +181,15 @@ export default function MineMap({ compact = false, height = 580, onSelectNode, o
               >
                 <HardHat className="h-3 w-3 text-status-attention" />
                 Miners
+              </button>
+              <button
+                type="button"
+                onClick={() => setIsAddMinerModalOpen(true)}
+                className="px-2 py-1 rounded transition border border-status-attention/40 bg-status-attention/15 text-status-attention hover:bg-status-attention hover:text-white font-medium flex items-center gap-1 shadow-sm"
+                title="Deploy new miner to map"
+              >
+                <UserPlus className="h-3 w-3" />
+                <span>+ Add Miner</span>
               </button>
             </div>
           )}
