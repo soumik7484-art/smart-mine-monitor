@@ -619,72 +619,99 @@ export default function MineMap({ compact = false, height = 580, onSelectNode, o
           )}
 
           {/* Workers Underground (UPS Tracked) */}
-          {showWorkers && (
-            <g className="workers-layer">
-              {workers.map((w, idx) => {
-                const parentNode = nodeMap.get(w.nodeId);
-                if (!parentNode) return null;
-                const isEvac = w.status === 'EVACUATING';
-                const isSelected = inspectedWorker?.id === w.id;
-                const angle = ((idx * 45) * Math.PI) / 180;
-                const wx = parentNode.x + Math.cos(angle) * 16;
-                const wy = parentNode.y + Math.sin(angle) * 16;
+          {showWorkers && (() => {
+            // Group workers by nodeId so we can sub-offset them tightly at each node
+            const workersByNode = {};
+            workers.forEach((w) => {
+              if (!workersByNode[w.nodeId]) workersByNode[w.nodeId] = [];
+              workersByNode[w.nodeId].push(w);
+            });
 
-                return (
-                  <g
-                    key={w.id}
-                    transform={`translate(${wx}, ${wy})`}
-                    onClick={(e) => {
-                      e.stopPropagation();
-                      setInspectedWorker(w);
-                      setSelectedRouteWorkerId(w.id);
-                      setInspectedTunnel(null);
-                      setInspectedNode(null);
-                    }}
-                    className="cursor-pointer"
-                  >
-                    {/* Selection ring */}
-                    {isSelected && (
-                      <circle r="10" fill="none" stroke="#06B6D4" strokeWidth="2" opacity="0.9" />
-                    )}
-                    {isEvac && (
-                      <circle r="9" fill="none" stroke="#C4362E" strokeWidth="1.5">
-                        <animate attributeName="r" values="7;14;7" dur="1.2s" repeatCount="indefinite" />
-                        <animate attributeName="opacity" values="0.8;0.1;0.8" dur="1.2s" repeatCount="indefinite" />
-                      </circle>
-                    )}
-                    <circle
-                      r="6"
-                      fill={isEvac ? '#C4362E' : isSelected ? '#06B6D4' : '#3D3530'}
-                      stroke="#FFFFFF"
-                      strokeWidth="1.5"
-                    />
-                    {/* Hard hat icon (tiny triangle) */}
-                    <text
-                      textAnchor="middle"
-                      y="2"
-                      fontSize="5"
-                      fontWeight="bold"
-                      fill="#FFFFFF"
-                      fontFamily="Inter, sans-serif"
+            return (
+              <g className="workers-layer">
+                {workers.map((w) => {
+                  const parentNode = nodeMap.get(w.nodeId);
+                  if (!parentNode) return null;
+
+                  const isEvac = w.status === 'EVACUATING';
+                  const isSelected = inspectedWorker?.id === w.id;
+
+                  // Find this worker's index within its node group for a tight offset grid
+                  const nodeGroup = workersByNode[w.nodeId] || [];
+                  const posInGroup = nodeGroup.findIndex(nw => nw.id === w.id);
+                  const groupSize = nodeGroup.length;
+
+                  // Lay out workers in a compact row, centered on the node
+                  // Max 4 per row, 13px spacing
+                  const cols = Math.min(groupSize, 4);
+                  const col = posInGroup % cols;
+                  const row = Math.floor(posInGroup / cols);
+                  const offsetX = (col - (Math.min(groupSize, cols) - 1) / 2) * 14;
+                  const offsetY = row * 14;
+
+                  const wx = parentNode.x + offsetX;
+                  const wy = parentNode.y - 24 - offsetY; // place cluster above the node dot
+
+                  return (
+                    <g
+                      key={w.id}
+                      transform={`translate(${wx}, ${wy})`}
+                      onClick={(e) => {
+                        e.stopPropagation();
+                        setInspectedWorker(w);
+                        setSelectedRouteWorkerId(w.id);
+                        setInspectedTunnel(null);
+                        setInspectedNode(null);
+                      }}
+                      className="cursor-pointer"
                     >
-                      ⛏
-                    </text>
-                    <text
-                      textAnchor="middle"
-                      y="16"
-                      fontSize="7"
-                      fontWeight="600"
-                      fill={isEvac ? '#C4362E' : isSelected ? '#06B6D4' : '#FFFFFF'}
-                      fontFamily="Inter, sans-serif"
-                    >
-                      {w.id}
-                    </text>
-                  </g>
-                );
-              })}
-            </g>
-          )}
+                      {/* Selection ring */}
+                      {isSelected && (
+                        <circle r="9" fill="none" stroke="#06B6D4" strokeWidth="2" opacity="0.9" />
+                      )}
+                      {isEvac && (
+                        <circle r="8" fill="none" stroke="#C4362E" strokeWidth="1.5">
+                          <animate attributeName="r" values="6;12;6" dur="1.2s" repeatCount="indefinite" />
+                          <animate attributeName="opacity" values="0.8;0.1;0.8" dur="1.2s" repeatCount="indefinite" />
+                        </circle>
+                      )}
+                      <circle
+                        r="5"
+                        fill={isEvac ? '#C4362E' : isSelected ? '#06B6D4' : '#3D3530'}
+                        stroke="#FFFFFF"
+                        strokeWidth="1.5"
+                      />
+                      {/* Hard hat icon */}
+                      <text
+                        textAnchor="middle"
+                        y="2"
+                        fontSize="4"
+                        fontWeight="bold"
+                        fill="#FFFFFF"
+                        fontFamily="Inter, sans-serif"
+                      >
+                        ⛏
+                      </text>
+                      {/* Only show ID label when selected or group is small */}
+                      {(isSelected || groupSize <= 3) && (
+                        <text
+                          textAnchor="middle"
+                          y="14"
+                          fontSize="6"
+                          fontWeight="600"
+                          fill={isEvac ? '#C4362E' : isSelected ? '#06B6D4' : '#FFFFFF'}
+                          fontFamily="Inter, sans-serif"
+                        >
+                          {w.id}
+                        </text>
+                      )}
+                    </g>
+                  );
+                })}
+              </g>
+            );
+          })()}
+
 
 
           {/* Scale & North Arrow */}
