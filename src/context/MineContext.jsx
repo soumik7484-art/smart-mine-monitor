@@ -323,6 +323,13 @@ export const MineProvider = ({ children }) => {
 
   const resetToNormal = useCallback(() => {
     engine.resetToNormal();
+
+    // If an admin session with custom miners is active, restore them after reset
+    // so the map keeps showing the registered shift crew, not the default mock workers
+    if (adminSession?.miners && Array.isArray(adminSession.miners) && adminSession.miners.length > 0) {
+      engine.loadCustomWorkers(adminSession.miners);
+    }
+
     setMineState(engine.getState());
     audioSynth.stopSiren();
     audioSynth.playSuccess();
@@ -342,7 +349,7 @@ export const MineProvider = ({ children }) => {
       action: 'Cleared all simulated blockages and strata offsets; returned sensors to nominal monitoring',
       status: 'Resolved',
     });
-  }, [engine, addToast, logIncident]);
+  }, [engine, adminSession, addToast, logIncident]);
 
   const advanceEvacuation = useCallback(() => {
     engine.advanceEvacuation();
