@@ -214,7 +214,10 @@ export default function TopBar() {
         {emergencyModeActive && (
           <button
             type="button"
-            onClick={() => setIsEmergencyHUDOpen(true)}
+            onClick={() => {
+              setIsEmergencyHUDOpen(true);
+              window.scrollTo({ top: document.body.scrollHeight, behavior: 'smooth' });
+            }}
             className="px-2.5 py-1 rounded-md text-xs font-bold bg-status-critical text-white shadow-sm shadow-red-500/30 animate-pulse"
           >
             HUD ACTIVE
