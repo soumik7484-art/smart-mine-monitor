@@ -368,6 +368,37 @@ export function createSimulationEngine() {
     };
   }
 
+  function loadCustomWorkers(customWorkers) {
+    if (!Array.isArray(customWorkers) || customWorkers.length === 0) return;
+    workers = customWorkers.map((cw, idx) => {
+      const zone = cw.zone || ['A', 'B', 'C', 'D'][idx % 4];
+      const nodeId = cw.nodeId || ['J7', 'J8', 'J9', 'J10', 'J11', 'J12', 'J13', 'J14'][idx % 8];
+      const coords = nodePositionMap[nodeId] || { x: 230, y: 220 };
+      return {
+        id: cw.id || `W-${String(idx + 1).padStart(3, '0')}`,
+        name: cw.name || `Miner ${idx + 1}`,
+        phone: cw.phone || '',
+        role: cw.role || 'Continuous Miner Operator',
+        zone: zone,
+        nodeId: nodeId,
+        helmet: 'Connected',
+        status: 'SAFE',
+        movement: 'Normal',
+        heartRate: 70 + Math.floor(Math.random() * 12),
+        tagBattery: 88 + Math.floor(Math.random() * 10),
+        xCoord: coords.x,
+        yCoord: coords.y,
+        seamDepth: -120 - (idx * 15),
+      };
+    });
+    workerRoutes = computeAllWorkerRoutes(workers, tunnelStates);
+  }
+
+  function resetCustomWorkers() {
+    workers = JSON.parse(JSON.stringify(INITIAL_WORKERS));
+    workerRoutes = computeAllWorkerRoutes(workers, tunnelStates);
+  }
+
   return {
     tick,
     getState,
@@ -379,5 +410,7 @@ export function createSimulationEngine() {
     toggleTunnelBlock,
     relocateWorker,
     setActiveRouteWorker: (id) => { activeRouteWorkerId = id; },
+    loadCustomWorkers,
+    resetCustomWorkers,
   };
 }

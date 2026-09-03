@@ -30,6 +30,8 @@ export default function TopBar() {
     setIsSensorSimulatorOpen,
     setIsEmergencyHUDOpen,
     emergencyModeActive,
+    adminSession,
+    clearAdminSession,
   } = useMine();
 
   const [currentTime, setCurrentTime] = useState(() => new Date());
@@ -56,18 +58,23 @@ export default function TopBar() {
         <div>
           <div className="flex items-center gap-2">
             <h2 className="font-bold text-sm text-mine-text-primary tracking-tight">
-              Chandrapur Deep Mine
+              {adminSession?.admin?.mineName || 'Chandrapur Deep Mine'}
             </h2>
             <span className="text-[10px] px-2 py-0.5 rounded-full font-mono font-bold bg-mine-surface-alt text-mine-text-secondary border border-mine-border">
-              Seam 3
+              {adminSession?.admin?.mineId || 'Seam 3'}
             </span>
+            {adminSession?.admin?.fullName && (
+              <span className="hidden sm:inline-flex items-center gap-1 text-[10px] px-2 py-0.5 rounded-full font-semibold bg-cyan-500/10 text-cyan-600 dark:text-cyan-400 border border-cyan-500/30">
+                Admin: {adminSession.admin.fullName}
+              </span>
+            )}
           </div>
           <div className="flex items-center gap-2 text-[11px] text-mine-text-secondary">
-            <span>DGMS Telemetry • Eastern Coalfields (ECL)</span>
+            <span>{adminSession?.admin?.mineLocation || 'DGMS Telemetry • Eastern Coalfields (ECL)'}</span>
             <span className="hidden md:inline-block text-mine-border">•</span>
             <span className="hidden md:inline-flex items-center gap-1 font-mono text-[10px] text-status-safe">
               <span className="w-1.5 h-1.5 rounded-full bg-status-safe animate-pulse" />
-              LoRa 868MHz (14ms)
+              {adminSession?.miners?.length ? `${adminSession.miners.length} Registered Miners (Active Shift)` : 'LoRa 868MHz (14ms)'}
             </span>
           </div>
         </div>
@@ -222,14 +229,26 @@ export default function TopBar() {
         {/* Operator Profile */}
         <div className="flex items-center gap-2 pl-2 border-l border-mine-border">
           <div className="w-7 h-7 rounded-full bg-gradient-to-tr from-amber-500 to-amber-700 text-white flex items-center justify-center text-xs font-bold shadow-sm">
-            DG
+            {adminSession?.admin?.fullName ? adminSession.admin.fullName.slice(0, 2).toUpperCase() : 'DG'}
           </div>
           <div className="hidden lg:block text-left">
-            <span className="text-xs font-semibold text-mine-text-primary block leading-none">
-              Safety Controller
+            <span className="text-xs font-semibold text-mine-text-primary block leading-none truncate max-w-[140px]">
+              {adminSession?.admin?.fullName || 'Safety Controller'}
             </span>
-            <span className="text-[10px] text-mine-text-secondary">DGMS Portal</span>
+            <span className="text-[10px] text-mine-text-secondary truncate max-w-[140px] block">
+              {adminSession?.admin?.role || 'DGMS Portal'}
+            </span>
           </div>
+          {adminSession && (
+            <button
+              type="button"
+              onClick={clearAdminSession}
+              className="text-[10px] px-2 py-0.5 rounded border border-red-500/30 text-red-500 hover:bg-red-500/10 transition ml-1 font-semibold"
+              title="End shift and revert to default colliery settings"
+            >
+              Reset Shift
+            </button>
+          )}
         </div>
       </div>
     </header>
