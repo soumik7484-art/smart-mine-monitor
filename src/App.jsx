@@ -10,15 +10,20 @@ import RiskAnalysis from './pages/RiskAnalysis';
 import WorkerSafety from './pages/WorkerSafety';
 import Emergency from './pages/Emergency';
 import IncidentHistory from './pages/IncidentHistory';
+import BlueprintStudio from './pages/BlueprintStudio';
+import AdminPortal from './pages/AdminPortal';
 
 export default function App() {
   return (
     <MineProvider>
       <Routes>
+        <Route path="/" element={<AdminPortal />} />
         <Route element={<AppLayout />}>
-          <Route path="/" element={<Navigate to="/overview" replace />} />
           <Route path="/overview" element={<Overview />} />
           <Route path="/mine-map" element={<MineMapPage />} />
+          <Route path="/blueprint-upload" element={<BlueprintStudio defaultTab="upload" />} />
+          <Route path="/admin" element={<BlueprintStudio defaultTab="upload" />} />
+          <Route path="/mine-map-files" element={<BlueprintStudio defaultTab="files" />} />
           <Route path="/sensor-network" element={<SensorNetwork />} />
           <Route path="/ai-prediction" element={<AIPredictionPage />} />
           <Route path="/risk-analysis" element={<RiskAnalysis />} />

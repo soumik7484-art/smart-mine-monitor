@@ -9,6 +9,15 @@ import { audioSynth } from '../utils/audioSynth.js';
 import { checkMLBackendHealth, queryMLBackend, buildMLTelemetryPayload } from '../services/mlAdapter.js';
 import { setLiveMLPrediction } from '../services/aiPrediction.js';
 import { MINE_TUNNELS, MINE_NODES } from '../data/mineData.js';
+import {
+  getDefaultMineMap,
+  loadSavedCustomMap,
+  saveCustomMap,
+  clearCustomMap,
+  fetchActiveMapBackend,
+  activateMapBackend,
+  fetchMineMaps,
+} from '../services/mineMapStore.js';
 
 const INITIAL_STATUTORY_INCIDENTS = [
   { id: 'INC-2024-089', date: '2026-08-31', time: '14:22', location: 'Zone B — Panel LW-102', event: 'Micro-seismic acoustic emission surge (54.8Hz)', risk: 'CRITICAL', action: 'Zone B evacuated; 3 miners detoured via Exit E1', status: 'Resolved' },
@@ -48,6 +57,10 @@ export const MineProvider = ({ children }) => {
     return 'light';
   });
   const [toasts, setToasts] = useState([]);
+
+  // Dynamic Map State (Default CAD Seam 3 or Custom Uploaded Blueprint Map)
+  const [activeMap, setActiveMap] = useState(() => loadSavedCustomMap() || getDefaultMineMap());
+  const isCustomMapActive = !activeMap.isDefault;
 
   // Live Incident Audit Log state (persisted across live map actions)
   const [incidentLog, setIncidentLog] = useState(() => {
@@ -124,6 +137,75 @@ export const MineProvider = ({ children }) => {
   const removeToast = useCallback((id) => {
     setToasts((prev) => prev.filter((t) => t.id !== id));
   }, []);
+
+  // ─── Custom Blueprint Map Actions ────────────────────────────────────
+  const setCustomActiveMap = useCallback((newMap) => {
+    setActiveMap(newMap);
+    saveCustomMap(newMap);
+    if (newMap.miners && Array.isArray(newMap.miners) && newMap.miners.length > 0) {
+      engine.loadCustomWorkers(newMap.miners);
+      setMineState(engine.getState());
+    }
+    addToast({
+      title: '2D Mine Map Loaded',
+      message: `Active map: ${newMap.mineName || 'Custom Blueprint Map'}.`,
+      type: 'success',
+    });
+  }, [engine, addToast]);
+
+  const activateMap = useCallback(async (mapId) => {
+    try {
+      const res = await activateMapBackend(mapId);
+      if (res && res.activeMap) {
+        setActiveMap(res.activeMap);
+        if (res.activeMap.miners && Array.isArray(res.activeMap.miners) && res.activeMap.miners.length > 0) {
+          engine.loadCustomWorkers(res.activeMap.miners);
+          setMineState(engine.getState());
+        }
+        addToast({
+          title: '2D Mine Map Activated',
+          message: `${res.mineName || 'Generated 2D Map'} is now the active dashboard map.`,
+          type: 'success',
+        });
+        return res;
+      }
+    } catch (err) {
+      console.warn('Map activation error:', err);
+      addToast({
+        title: 'Map Activation Error',
+        message: err.message || 'Could not activate selected map.',
+        type: 'warning',
+      });
+    }
+  }, [engine, addToast]);
+
+  // Sync active map from backend on initial mount
+  useEffect(() => {
+    let isMounted = true;
+    fetchActiveMapBackend().then((map) => {
+      if (isMounted && map) {
+        setActiveMap(map);
+        if (map.miners && Array.isArray(map.miners) && map.miners.length > 0) {
+          engine.loadCustomWorkers(map.miners);
+          setMineState(engine.getState());
+        }
+      }
+    }).catch(() => {});
+    return () => { isMounted = false; };
+  }, [engine]);
+
+  const resetToDefaultMap = useCallback(() => {
+    clearCustomMap();
+    const def = getDefaultMineMap();
+    setActiveMap(def);
+    engine.resetCustomWorkers();
+    setMineState(engine.getState());
+    addToast({
+      title: 'Reverted to Default Map',
+      message: 'Active map: Raniganj Seam 3 CAD plan.',
+      type: 'info',
+    });
+  }, [engine, addToast]);
 
   // ─── Incident Logging System ───────────────────────────────────────────
   const logIncident = useCallback(({ location, event, risk = 'MEDIUM', action, status = 'ACTIVE' }) => {
@@ -612,8 +694,13 @@ export const MineProvider = ({ children }) => {
     adminSession,
     clearAdminSession,
     logoutAdmin,
+    activeMap,
+    isCustomMapActive,
 
     // Actions
+    activateMap,
+    setCustomActiveMap,
+    resetToDefaultMap,
     addMiner,
     addToast,
     removeToast,

@@ -16,10 +16,15 @@ const RISK_MULTIPLIERS = {
  * @param {string} startNodeId - Worker's current junction node ID
  * @param {string|null} targetExitId - Specific exit to route to (null = nearest safe exit)
  * @param {Object} tunnelStates - Map of tunnelId → { riskLevel, status }
+ * @param {Array|null} customTunnels - Optional custom map roadways
+ * @param {Array|null} customExits - Optional custom map shafts/exits
  * @returns {{ routeNodes: string[], tunnelIds: string[], totalDistance: number, estimatedTime: string, exitId: string, exitLabel: string } | null}
  */
-export function computeSafeRoute(startNodeId, targetExitId, tunnelStates = {}) {
-  const tunnelsWithState = MINE_TUNNELS.map(t => {
+export function computeSafeRoute(startNodeId, targetExitId, tunnelStates = {}, customTunnels = null, customExits = null) {
+  const activeTunnels = customTunnels || MINE_TUNNELS;
+  const activeExits = customExits || MINE_EXITS;
+
+  const tunnelsWithState = activeTunnels.map(t => {
     const state = tunnelStates[t.id] || { riskLevel: 'SAFE', status: 'OPEN' };
     return { ...t, riskLevel: state.riskLevel || 'SAFE', status: state.status || 'OPEN' };
   });
@@ -38,7 +43,7 @@ export function computeSafeRoute(startNodeId, targetExitId, tunnelStates = {}) {
 
   const exitIds = targetExitId
     ? [targetExitId]
-    : MINE_EXITS.filter(e => e.type === 'surface' || e.type === 'emergency').map(e => e.id);
+    : activeExits.filter(e => e.type === 'surface' || e.type === 'emergency').map(e => e.id);
 
   let bestRoute = null;
   let bestCost = Infinity;
@@ -53,7 +58,7 @@ export function computeSafeRoute(startNodeId, targetExitId, tunnelStates = {}) {
 
   if (!bestRoute) return null;
 
-  const exit = MINE_EXITS.find(e => e.id === bestRoute.path[bestRoute.path.length - 1]);
+  const exit = activeExits.find(e => e.id === bestRoute.path[bestRoute.path.length - 1]);
 
   // Compute actual distance (sum of tunnel lengths, not penalized costs)
   let totalDistance = 0;
@@ -148,10 +153,10 @@ function dijkstra(graph, start, end) {
 /**
  * Compute routes for all workers to their nearest safe exit
  */
-export function computeAllWorkerRoutes(workers, tunnelStates) {
+export function computeAllWorkerRoutes(workers, tunnelStates, customTunnels = null, customExits = null) {
   const routes = {};
   for (const worker of workers) {
-    const route = computeSafeRoute(worker.nodeId, null, tunnelStates);
+    const route = computeSafeRoute(worker.nodeId, null, tunnelStates, customTunnels, customExits);
     if (route) {
       routes[worker.id] = route;
     }

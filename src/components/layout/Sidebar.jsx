@@ -16,16 +16,25 @@ import {
   Moon,
   X,
   Wifi,
+  UploadCloud,
+  ShieldCheck,
+  FolderKanban,
 } from 'lucide-react';
 
 const navItems = [
   { name: 'Command Dashboard', path: '/overview', icon: LayoutDashboard },
   { name: '2D Live Mine Map', path: '/mine-map', icon: Map },
+  { name: 'Blueprint → 2D Map AI', path: '/blueprint-upload', icon: UploadCloud },
   { name: 'Strata Sensors (24)', path: '/sensor-network', icon: Radio },
   { name: 'AI Prediction & XAI', path: '/ai-prediction', icon: BrainCircuit },
   { name: 'Worker Safety (UPS)', path: '/worker-safety', icon: HardHat },
   { name: 'Emergency Evacuation', path: '/emergency', icon: ShieldAlert },
   { name: 'Incident Audit Log', path: '/incident-history', icon: ClipboardList },
+];
+
+const adminNavItems = [
+  { name: 'Admin (Blueprint Upload)', path: '/admin', icon: ShieldCheck },
+  { name: 'Mine Map Files', path: '/mine-map-files', icon: FolderKanban },
 ];
 
 export default function Sidebar() {
@@ -147,8 +156,40 @@ export default function Sidebar() {
             );
           })}
 
+          {/* Administration Section */}
+          <div className="pt-3">
+            <div className="px-2 py-1.5 text-[10px] font-bold uppercase tracking-wider text-mine-text-secondary flex items-center justify-between">
+              <span>Administration</span>
+              <span className="text-[9px] px-1.5 py-0.2 rounded bg-cyan-500/15 text-cyan-600 dark:text-cyan-400 font-mono font-bold">
+                ADMIN
+              </span>
+            </div>
+            {adminNavItems.map((item) => {
+              const Icon = item.icon;
+              return (
+                <NavLink
+                  key={item.name}
+                  to={item.path}
+                  onClick={() => setIsSidebarOpen(false)}
+                  className={({ isActive }) =>
+                    `flex items-center justify-between px-3 py-2.5 rounded-lg text-xs font-medium transition-all group relative ${
+                      isActive
+                        ? 'bg-mine-surface text-mine-text-primary border border-mine-border shadow-card font-semibold'
+                        : 'text-mine-text-secondary hover:bg-mine-surface/70 hover:text-mine-text-primary'
+                    }`
+                  }
+                >
+                  <div className="flex items-center gap-3 min-w-0">
+                    <Icon className="h-4 w-4 flex-shrink-0 transition-transform group-hover:scale-110 text-cyan-500" />
+                    <span className="truncate">{item.name}</span>
+                  </div>
+                </NavLink>
+              );
+            })}
+          </div>
+
           {/* Quick Launchers */}
-          <div className="pt-4">
+          <div className="pt-3">
             <div className="px-2 py-2 text-[10px] font-bold uppercase tracking-wider text-mine-text-secondary">
               Simulation Controls
             </div>

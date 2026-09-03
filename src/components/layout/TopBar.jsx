@@ -1,4 +1,5 @@
 import React, { useState, useEffect } from 'react';
+import { useNavigate } from 'react-router-dom';
 import { useMine } from '../../context/MineContext';
 import {
   Sliders,
@@ -16,6 +17,7 @@ import {
   UserPlus,
   LogOut,
   ExternalLink,
+  UploadCloud,
 } from 'lucide-react';
 
 export default function TopBar() {
@@ -37,8 +39,11 @@ export default function TopBar() {
     clearAdminSession,
     logoutAdmin,
     setIsAddMinerModalOpen,
+    activeMap,
+    isCustomMapActive,
   } = useMine();
 
+  const navigate = useNavigate();
   const [currentTime, setCurrentTime] = useState(() => new Date());
 
   useEffect(() => {
@@ -174,6 +179,21 @@ export default function TopBar() {
             (Shift 3)
           </span>
         </div>
+
+        {/* Blueprint Studio Button */}
+        <button
+          type="button"
+          onClick={() => navigate('/blueprint-upload')}
+          className={`flex items-center gap-1.5 px-2.5 py-1 rounded-md text-xs font-semibold border transition shadow-card ${
+            isCustomMapActive
+              ? 'bg-cyan-500/15 text-cyan-600 dark:text-cyan-400 border-cyan-500/30'
+              : 'bg-mine-surface border-mine-border text-mine-text-primary hover:bg-mine-surface-alt'
+          }`}
+          title="Open Blueprint 2D Map Analyzer & Studio"
+        >
+          <UploadCloud className="h-3.5 w-3.5 text-status-safe" />
+          <span className="hidden sm:inline">Blueprint AI</span>
+        </button>
 
         {/* Audio Mute/Unmute */}
         <button

@@ -514,6 +514,82 @@
                   </div>
                 </div>
 
+                <!-- Blueprint Action Buttons -->
+                <div class="blueprint-action-buttons" style="display:flex; gap:0.75rem; margin-top:0.85rem;">
+                  <button type="button" id="btn-upload-blueprint-action" class="btn-browse" style="flex:1; justify-content:center;">
+                    <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" width="16" height="16" aria-hidden="true">
+                      <path d="M21 15v4a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2v-4"></path>
+                      <polyline points="17 8 12 3 7 8"></polyline>
+                      <line x1="12" y1="3" x2="12" y2="15"></line>
+                    </svg>
+                    <span>Upload Blueprint</span>
+                  </button>
+                  <button type="button" id="btn-generate-cv-map" class="btn-launch-dashboard" style="flex:1; margin-top:0; padding:0.65rem 1rem; font-size:0.85rem; justify-content:center;">
+                    <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" width="16" height="16" aria-hidden="true">
+                      <polygon points="12 2 2 7 12 12 22 7 12 2"></polygon>
+                      <polyline points="2 17 12 22 22 17"></polyline>
+                      <polyline points="2 12 12 17 22 12"></polyline>
+                    </svg>
+                    <span>Generate 2D Mine Map</span>
+                  </button>
+                </div>
+
+                <!-- Computer Vision & Feature Extraction Progress HUD -->
+                <div id="cv-analysis-hud" style="display:none; margin-top:0.85rem; padding:0.85rem; border-radius:8px; background:rgba(16,185,129,0.06); border:1px solid rgba(16,185,129,0.3);">
+                  <div style="display:flex; justify-content:space-between; align-items:center; font-size:0.8rem; font-weight:700; color:var(--text-primary); margin-bottom:0.4rem;">
+                    <span id="cv-stage-title" style="display:flex; align-items:center; gap:0.4rem;">
+                      <span class="pulse-indicator" style="background:#10b981;"></span>
+                      STAGE: PREPROCESSING BLUEPRINT
+                    </span>
+                    <span id="cv-stage-percent" style="font-family:var(--font-mono); color:#10b981;">35%</span>
+                  </div>
+                  <div style="height:4px; width:100%; background:rgba(255,255,255,0.1); border-radius:99px; overflow:hidden;">
+                    <div id="cv-progress-bar" style="height:100%; width:35%; background:#10b981; transition:width 0.25s ease;"></div>
+                  </div>
+                  <div id="cv-stage-desc" style="font-size:0.75rem; color:var(--text-muted); font-family:var(--font-mono); margin-top:0.4rem;">
+                    Running contrast normalization, Otsu binarization & edge detection...
+                  </div>
+                </div>
+
+                <!-- Blueprint Verification Box (Appears after processing) -->
+                <div id="cv-verification-box" style="display:none; margin-top:0.85rem; padding:0.85rem; border-radius:8px; background:rgba(14,165,233,0.06); border:1px solid rgba(14,165,233,0.3);">
+                  <div style="display:flex; justify-content:space-between; align-items:center; border-bottom:1px solid rgba(14,165,233,0.2); pb:0.4rem; margin-bottom:0.5rem;">
+                    <div style="display:flex; align-items:center; gap:0.4rem; font-weight:700; font-size:0.85rem; color:var(--text-primary);">
+                      <span style="color:#10b981;">✓</span>
+                      <span>Blueprint Analysis Complete</span>
+                    </div>
+                    <span style="font-size:0.7rem; font-family:var(--font-mono); color:var(--text-muted);">Scale: 1:500m (Verified)</span>
+                  </div>
+                  
+                  <div style="display:grid; grid-template-columns: repeat(4, 1fr); gap:0.4rem; text-align:center; font-size:0.75rem; margin-bottom:0.6rem;">
+                    <div style="padding:0.3rem; background:rgba(255,255,255,0.04); border-radius:4px;">
+                      <div style="color:var(--text-dim); font-size:0.65rem;">Roadways</div>
+                      <div style="font-weight:700; font-family:var(--font-mono); color:var(--text-primary);" id="stat-roadways">24</div>
+                    </div>
+                    <div style="padding:0.3rem; background:rgba(255,255,255,0.04); border-radius:4px;">
+                      <div style="color:var(--text-dim); font-size:0.65rem;">Pillars</div>
+                      <div style="font-weight:700; font-family:var(--font-mono); color:var(--text-primary);" id="stat-pillars">42</div>
+                    </div>
+                    <div style="padding:0.3rem; background:rgba(255,255,255,0.04); border-radius:4px;">
+                      <div style="color:var(--text-dim); font-size:0.65rem;">Panels</div>
+                      <div style="font-weight:700; font-family:var(--font-mono); color:var(--text-primary);" id="stat-panels">6</div>
+                    </div>
+                    <div style="padding:0.3rem; background:rgba(255,255,255,0.04); border-radius:4px;">
+                      <div style="color:var(--text-dim); font-size:0.65rem;">Shafts</div>
+                      <div style="font-weight:700; font-family:var(--font-mono); color:var(--text-primary);" id="stat-shafts">4</div>
+                    </div>
+                  </div>
+
+                  <div style="display:flex; gap:0.5rem;">
+                    <button type="button" id="btn-review-vector-map" class="btn-browse" style="flex:1; padding:0.45rem; font-size:0.75rem; justify-content:center;">
+                      Review Map
+                    </button>
+                    <button type="button" id="btn-confirm-vector-map" class="btn-launch-dashboard" style="flex:1; margin-top:0; padding:0.45rem; font-size:0.75rem; background:#10b981; justify-content:center;">
+                      Confirm Map ✓
+                    </button>
+                  </div>
+                </div>
+
               </div>
             </section>
 

@@ -24,3 +24,11 @@ dist-ssr
 *.sw?
 
 .vercel
+
+# Python
+__pycache__/
+*.py[cod]
+*$py.class
+backend/uploads/
+backend/test_assets/
+backend/data/
