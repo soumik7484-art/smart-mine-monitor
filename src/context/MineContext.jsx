@@ -1,12 +1,24 @@
 ﻿// MINEGUARD AI — Central React Context
 // Replaces App.jsx prop drilling with context-based state management
 // Integrates simulation engine + background ML backend health & polling bridge
+// Tracks real-time interactive incident audit log for all manual & automated map/sensor changes
 
 import React, { createContext, useContext, useEffect, useState, useCallback, useRef } from 'react';
 import { createSimulationEngine } from '../services/simulationEngine.js';
 import { audioSynth } from '../utils/audioSynth.js';
 import { checkMLBackendHealth, queryMLBackend, buildMLTelemetryPayload } from '../services/mlAdapter.js';
 import { setLiveMLPrediction } from '../services/aiPrediction.js';
+import { MINE_TUNNELS, MINE_NODES } from '../data/mineData.js';
+
+const INITIAL_STATUTORY_INCIDENTS = [
+  { id: 'INC-2024-089', date: '2026-08-31', time: '14:22', location: 'Zone B — Panel LW-102', event: 'Micro-seismic acoustic emission surge (54.8Hz)', risk: 'CRITICAL', action: 'Zone B evacuated; 3 miners detoured via Exit E1', status: 'Resolved' },
+  { id: 'INC-2024-088', date: '2026-08-30', time: '09:15', location: 'Zone B — Cross-Cut J9', event: 'LVDT roof displacement exceeded 8.2mm', risk: 'HIGH', action: 'Hydraulic props reinforced; rate monitored', status: 'Resolved' },
+  { id: 'INC-2024-087', date: '2026-08-28', time: '16:45', location: 'Zone C — Depillaring DP-4', event: 'Pillar hydraulic load transfer peak 22.4 MPa', risk: 'HIGH', action: 'Caving boundary inspection; goaf barricaded', status: 'Resolved' },
+  { id: 'INC-2024-086', date: '2026-08-25', time: '11:10', location: 'Zone A — Main Incline J2', event: 'NDIR methane sensor drift (0.85% LEL)', risk: 'MEDIUM', action: 'Auxiliary ventilation fan speed increased', status: 'Resolved' },
+  { id: 'INC-2024-085', date: '2026-08-22', time: '03:30', location: 'Zone D — Return Airway J13', event: 'Clinometer angular deviation 2.4° in rib', risk: 'MEDIUM', action: 'Roof bolting pattern densified (1.2m grid)', status: 'Resolved' },
+  { id: 'INC-2024-084', date: '2026-08-18', time: '18:05', location: 'Zone B — Face Gallery J10', event: 'LoRaWAN node S-11 transmission latency spike', risk: 'LOW', action: 'Repeater gateway rebooted; signal restored', status: 'Resolved' },
+  { id: 'INC-2024-083', date: '2026-08-14', time: '08:40', location: 'Zone A — Intake Shaft J1', event: 'Routine DGMS statutory quarterly strata audit', risk: 'LOW', action: 'All extensometer benchmarks verified nominal', status: 'Resolved' },
+];
 
 const MineContext = createContext(null);
 
@@ -35,6 +47,53 @@ export const MineProvider = ({ children }) => {
     return 'light';
   });
   const [toasts, setToasts] = useState([]);
+
+  // Live Incident Audit Log state (persisted across live map actions)
+  const [incidentLog, setIncidentLog] = useState(() => {
+    try {
+      const saved = localStorage.getItem('mineguard_incident_log');
+      if (saved) return JSON.parse(saved);
+    } catch (e) {}
+    return INITIAL_STATUTORY_INCIDENTS;
+  });
+
+  // Sync incident log to localStorage
+  useEffect(() => {
+    try {
+      localStorage.setItem('mineguard_incident_log', JSON.stringify(incidentLog));
+    } catch (e) {}
+  }, [incidentLog]);
+
+  // Method to log an incident event into the audit record
+  const logIncident = useCallback(({ location, event, risk = 'MEDIUM', action, status = 'ACTIVE' }) => {
+    const now = new Date();
+    const dateStr = now.toISOString().split('T')[0];
+    const timeStr = now.toLocaleTimeString('en-IN', { hour: '2-digit', minute: '2-digit', second: '2-digit' });
+    const id = `INC-${now.getFullYear()}-${String(Math.floor(100 + Math.random() * 900))}`;
+
+    const newRecord = {
+      id,
+      date: dateStr,
+      time: timeStr,
+      location,
+      event,
+      risk: risk.toUpperCase(),
+      action,
+      status,
+      isLive: true,
+    };
+
+    setIncidentLog((prev) => [newRecord, ...prev]);
+    return newRecord;
+  }, []);
+
+  // Clear live logs back to statutory baseline
+  const resetIncidentLog = useCallback(() => {
+    setIncidentLog(INITIAL_STATUTORY_INCIDENTS);
+    try {
+      localStorage.removeItem('mineguard_incident_log');
+    } catch (e) {}
+  }, []);
 
   // ML Backend Live State
   const [mlBackendState, setMlBackendState] = useState({
@@ -130,10 +189,7 @@ export const MineProvider = ({ children }) => {
       }
     };
 
-    // Initial check
     pollMLModel();
-
-    // Poll every 5s without blocking the 2s sensor simulation tick
     const mlInterval = setInterval(pollMLModel, 5000);
     return () => {
       isSubscribed = false;
@@ -162,7 +218,7 @@ export const MineProvider = ({ children }) => {
     }
   }, [bannerNotification]);
 
-  // ─── Scenario Actions ─────────────────────────────────────────────────
+  // ─── Scenario Actions With Automatic Audit Logging ───────────────────
   const triggerSubsidence = useCallback(() => {
     const result = engine.triggerSubsidence();
     setMineState(engine.getState());
@@ -173,8 +229,17 @@ export const MineProvider = ({ children }) => {
       message: 'Accelerating ground displacement detected in Zone B (LVDT #3)',
       type: 'warning',
     });
+
+    logIncident({
+      location: 'Zone B — Active Face Dip 2',
+      event: 'Accelerating ground deformation & subsidence threshold triggered (LVDT rate > 12mm/hr)',
+      risk: 'CRITICAL',
+      action: 'Automated audible siren sounder initiated; workers advised to move to refuge chamber REF-1',
+      status: 'ACTIVE',
+    });
+
     return result;
-  }, [engine, addToast]);
+  }, [engine, addToast, logIncident]);
 
   const triggerCollapse = useCallback((tunnelId = 'T-12') => {
     const result = engine.triggerCollapse(tunnelId);
@@ -188,8 +253,20 @@ export const MineProvider = ({ children }) => {
       type: 'critical',
     });
     setIsEmergencyHUDOpen(true);
+
+    const tunnelObj = MINE_TUNNELS.find(t => t.id === tunnelId);
+    const loc = tunnelObj ? `Zone ${tunnelObj.zone} — ${tunnelObj.label} (${tunnelId})` : `Tunnel ${tunnelId}`;
+
+    logIncident({
+      location: loc,
+      event: `Simulated roof strata collapse in gallery tunnel ${tunnelId}`,
+      risk: 'CRITICAL',
+      action: 'Dijkstra shortest-safe-path re-route computed; tunnel blocked on vector CAD schematic',
+      status: 'ACTIVE',
+    });
+
     return result;
-  }, [engine, isMuted, addToast]);
+  }, [engine, isMuted, addToast, logIncident]);
 
   const resetToNormal = useCallback(() => {
     engine.resetToNormal();
@@ -204,7 +281,15 @@ export const MineProvider = ({ children }) => {
       message: 'All sensors and gallery tunnels restored to nominal state.',
       type: 'success',
     });
-  }, [engine, addToast]);
+
+    logIncident({
+      location: 'All Sectors (Zone A - D)',
+      event: 'Control room operator triggered baseline recovery reset',
+      risk: 'LOW',
+      action: 'Cleared all simulated blockages and strata offsets; returned sensors to nominal monitoring',
+      status: 'Resolved',
+    });
+  }, [engine, addToast, logIncident]);
 
   const advanceEvacuation = useCallback(() => {
     engine.advanceEvacuation();
@@ -215,23 +300,105 @@ export const MineProvider = ({ children }) => {
       message: 'Miners stepped 1 junction forward along safe computed detour.',
       type: 'info',
     });
-  }, [engine, addToast]);
 
+    logIncident({
+      location: 'Underground Evacuation Network',
+      event: 'Dispatched dynamic waypoint navigation advance',
+      risk: 'MEDIUM',
+      action: 'Miners sequenced 1 junction forward towards designated surface shaft',
+      status: 'ACTIVE',
+    });
+  }, [engine, addToast, logIncident]);
+
+  // ─── Real Map Change Handler: Toggle Tunnel Block / Collapse ─────────
   const toggleTunnelBlock = useCallback((tunnelId) => {
+    const wasCollapsed = mineState.tunnelStates?.[tunnelId]?.status === 'COLLAPSED';
     engine.toggleTunnelBlock(tunnelId);
-    setMineState(engine.getState());
+    const newState = engine.getState();
+    setMineState(newState);
     audioSynth.playClick();
-  }, [engine]);
 
+    const tunnelObj = MINE_TUNNELS.find(t => t.id === tunnelId);
+    const loc = tunnelObj ? `Zone ${tunnelObj.zone} — ${tunnelObj.label} (${tunnelId})` : `Tunnel ${tunnelId}`;
+
+    if (!wasCollapsed) {
+      // Tunnel was blocked / collapsed on map
+      logIncident({
+        location: loc,
+        event: `Manual blockage simulated on Map: ${tunnelId} marked IMPASSABLE`,
+        risk: 'HIGH',
+        action: 'Dynamic rerouting initiated for all personnel; tunnel flagged on digital mine CAD',
+        status: 'ACTIVE',
+      });
+      addToast({
+        title: `Map Updated: ${tunnelId} Blocked`,
+        message: `Tunnel ${tunnelId} marked impassable. Incident audit log updated.`,
+        type: 'warning',
+      });
+    } else {
+      // Tunnel was cleared / reopened on map
+      logIncident({
+        location: loc,
+        event: `Tunnel ${tunnelId} cleared and declared structurally secure`,
+        risk: 'LOW',
+        action: 'DGMS strata clearance logged; haulage path reopened on CAD network',
+        status: 'Resolved',
+      });
+      addToast({
+        title: `Map Updated: ${tunnelId} Reopened`,
+        message: `Tunnel ${tunnelId} reopened. Incident audit log updated.`,
+        type: 'success',
+      });
+    }
+  }, [engine, mineState.tunnelStates, logIncident, addToast]);
+
+  // ─── Real Map Change Handler: Relocate Miner Underground ─────────────
   const relocateWorker = useCallback((workerId, nodeId) => {
+    const worker = mineState.workers?.find(w => w.id === workerId);
+    const prevNode = worker?.nodeId || 'Unknown';
     engine.relocateWorker(workerId, nodeId);
     setMineState(engine.getState());
-  }, [engine]);
 
+    const nodeObj = MINE_NODES.find(n => n.id === nodeId);
+    const nodeLabel = nodeObj ? `${nodeObj.label} (${nodeId})` : nodeId;
+
+    logIncident({
+      location: `Subsurface Node ${nodeId}`,
+      event: `Personnel movement: Miner ${worker?.name || workerId} relocated from ${prevNode} to ${nodeId}`,
+      risk: 'LOW',
+      action: 'UWB positioning anchor confirmed miner tag fix; route re-evaluated',
+      status: 'Resolved',
+    });
+
+    addToast({
+      title: 'Miner Repositioned',
+      message: `${worker?.name || workerId} moved to ${nodeLabel}. Audit log updated.`,
+      type: 'info',
+    });
+  }, [engine, mineState.workers, logIncident, addToast]);
+
+  // ─── Real Telemetry Override Handler (Sensor Simulator / Injections) ──
   const overrideSensorValue = useCallback((sensorId, param, value) => {
     engine.overrideSensorValue(sensorId, param, value);
     setMineState(engine.getState());
-  }, [engine]);
+
+    // If overridden value exceeds warning thresholds, log incident
+    const s = mineState.sensors?.find(sen => sen.id === sensorId);
+    const isCritical = (param === 'displacement' && value >= 5.0) ||
+                       (param === 'tilt' && value >= 3.0) ||
+                       (param === 'vibration' && value >= 0.4) ||
+                       (param === 'stress' && value >= 15.0);
+
+    if (isCritical) {
+      logIncident({
+        location: `Zone ${s?.zone || 'Unknown'} — Node ${sensorId}`,
+        event: `Telemetry override on map: ${param} set to ${value} (Threshold exceeded)`,
+        risk: 'HIGH',
+        action: 'Telemetry anomaly captured in control room audit record; safety team alerted',
+        status: 'ACTIVE',
+      });
+    }
+  }, [engine, mineState.sensors, logIncident]);
 
   const silenceSiren = useCallback(() => {
     audioSynth.stopSiren();
@@ -275,6 +442,7 @@ export const MineProvider = ({ children }) => {
     isDarkMode: theme === 'dark',
     toasts,
     mlBackendState,
+    incidentLog,
 
     // Actions
     addToast,
@@ -287,6 +455,8 @@ export const MineProvider = ({ children }) => {
     toggleTunnelBlock,
     relocateWorker,
     overrideSensorValue,
+    logIncident,
+    resetIncidentLog,
     silenceSiren,
     toggleMute,
     setIsEmergencyHUDOpen,
