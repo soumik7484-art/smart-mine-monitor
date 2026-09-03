@@ -33,10 +33,22 @@ export default function Emergency() {
     setBannerNotification,
   } = useMine();
 
-  const [selectedWorkerId, setSelectedWorkerId] = useState(activeRouteWorkerId || 'W-003');
-
   const evacuatingWorkers = workers.filter((w) => w.status === 'EVACUATING');
-  const targetWorker = workers.find((w) => w.id === selectedWorkerId) || workers[0];
+
+  // Auto-select the first evacuating miner when emergency is active, otherwise keep manual selection
+  const defaultSelectedId = evacuatingWorkers.length > 0
+    ? evacuatingWorkers[0].id
+    : (activeRouteWorkerId || workers[0]?.id || '');
+
+  const [selectedWorkerId, setSelectedWorkerId] = useState(defaultSelectedId);
+
+  // Keep selectedWorkerId in sync when emergency mode toggles or evacuating workers change
+  const effectiveSelectedId =
+    evacuatingWorkers.length > 0 && !evacuatingWorkers.find(w => w.id === selectedWorkerId)
+      ? evacuatingWorkers[0].id
+      : selectedWorkerId;
+
+  const targetWorker = workers.find((w) => w.id === effectiveSelectedId) || workers[0];
   const currentRoute = targetWorker ? workerRoutes[targetWorker.id] : null;
 
   const isCollapsed = emergencyModeActive || collapsedTunnelIds.length > 0;
@@ -106,17 +118,26 @@ export default function Emergency() {
                   🚨 DYNAMIC ROUTE RE-CALCULATION ACTIVE: HAZARD DETECTED
                 </h3>
                 <p className="text-xs text-mine-text-primary">
-                  Tunnel <strong>{collapsedTunnelIds.join(', ') || 'T-12'}</strong> in Sector B has suffered a strata breach and is impassable (Cost = &infin;).
-                  The Dijkstra engine automatically excised the blocked segment and calculated the shortest safe detour avoiding the hazard perimeter.
+                  Tunnel{collapsedTunnelIds.length > 1 ? 's' : ''}{' '}
+                  <strong>{collapsedTunnelIds.length > 0 ? collapsedTunnelIds.join(', ') : 'T-12'}</strong>{' '}
+                  {collapsedTunnelIds.length > 1 ? 'are' : 'is'} impassable (Cost = &infin;).
+                  The Dijkstra engine automatically excised the blocked segment(s) and calculated the shortest safe detour.
                 </p>
                 <div className="flex flex-wrap items-center gap-4 text-xs pt-1">
-                  <span className="text-mine-text-secondary line-through">
-                    Old Blocked Path: J10 &rarr; T-12 &rarr; J9 (IMPASSABLE)
+                  <span className="text-status-critical font-semibold">
+                    ⚠ {evacuatingWorkers.length} miner{evacuatingWorkers.length !== 1 ? 's' : ''} EVACUATING
                   </span>
-                  <span className="text-status-safe font-bold flex items-center gap-1">
-                    <ArrowRight className="h-3.5 w-3.5" />
-                    New Safe Detour: J10 &rarr; J12 &rarr; J11 &rarr; J9 &rarr; Exit E1
-                  </span>
+                  {evacuatingWorkers.length > 0 && workerRoutes[evacuatingWorkers[0].id] && (
+                    <span className="text-status-safe font-bold flex items-center gap-1">
+                      <ArrowRight className="h-3.5 w-3.5" />
+                      Safe Route ({evacuatingWorkers[0].name}): {workerRoutes[evacuatingWorkers[0].id].routeNodes?.join(' → ')} → {workerRoutes[evacuatingWorkers[0].id].exitLabel}
+                    </span>
+                  )}
+                  {evacuatingWorkers.length === 0 && (
+                    <span className="text-mine-text-secondary">
+                      No miners currently in affected zone.
+                    </span>
+                  )}
                 </div>
               </div>
             </div>
@@ -174,15 +195,20 @@ export default function Emergency() {
                     type="button"
                     onClick={() => setSelectedWorkerId(w.id)}
                     className={`p-2 rounded text-left border transition text-xs ${
-                      selectedWorkerId === w.id
-                        ? 'bg-mine-surface-alt border-mine-text-primary font-semibold'
+                      effectiveSelectedId === w.id
+                        ? w.status === 'EVACUATING'
+                          ? 'bg-status-critical/10 border-status-critical font-semibold'
+                          : 'bg-mine-surface-alt border-mine-text-primary font-semibold'
                         : 'bg-mine-surface border-mine-border text-mine-text-secondary hover:bg-mine-surface-alt'
                     }`}
                   >
                     <div className="flex items-center justify-between">
                       <span className="truncate">{w.name}</span>
                       {w.status === 'EVACUATING' && (
-                        <span className="w-2 h-2 rounded-full bg-status-critical animate-ping" />
+                        <span className="flex items-center gap-1 text-[9px] font-bold text-status-critical">
+                          <span className="w-1.5 h-1.5 rounded-full bg-status-critical animate-ping" />
+                          EVAC
+                        </span>
                       )}
                     </div>
                     <span className="text-[10px] text-mine-text-secondary font-mono">{w.id} • Zone {w.zone}</span>

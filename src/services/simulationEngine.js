@@ -294,21 +294,93 @@ export function createSimulationEngine() {
 
   function toggleTunnelBlock(tunnelId) {
     const state = tunnelStates[tunnelId];
-    if (state) {
-      if (state.status === 'COLLAPSED') {
-        state.status = 'OPEN';
-        state.riskLevel = 'SAFE';
-        collapsedTunnelIds = collapsedTunnelIds.filter(id => id !== tunnelId);
+    if (!state) return;
+
+    const tunnelDef = MINE_TUNNELS.find(t => t.id === tunnelId);
+
+    if (state.status === 'COLLAPSED') {
+      // ── Reopen tunnel ──────────────────────────────────────────
+      state.status = 'OPEN';
+      state.riskLevel = 'SAFE';
+      collapsedTunnelIds = collapsedTunnelIds.filter(id => id !== tunnelId);
+
+      // If no more collapsed tunnels, clear emergency mode and restore workers
+      if (collapsedTunnelIds.length === 0) {
+        emergencyModeActive = false;
+        sirenActive = false;
+        mode = 'NORMAL';
+        affectedWorkerIds = [];
+        workers.forEach(w => {
+          if (w.status === 'EVACUATING') {
+            w.status = 'SAFE';
+            w.movement = 'Stationary';
+          }
+        });
       } else {
-        state.status = 'COLLAPSED';
-        state.riskLevel = 'COLLAPSED';
-        if (!collapsedTunnelIds.includes(tunnelId)) {
-          collapsedTunnelIds.push(tunnelId);
-        }
+        // Other tunnels still collapsed; just remove workers near this tunnel from affected list
+        const adjacentNodes = tunnelDef ? [tunnelDef.from, tunnelDef.to] : [];
+        const workerIdsNearThisTunnel = workers
+          .filter(w => adjacentNodes.includes(w.nodeId))
+          .map(w => w.id);
+        affectedWorkerIds = affectedWorkerIds.filter(id => !workerIdsNearThisTunnel.includes(id));
+        workerIdsNearThisTunnel.forEach(id => {
+          const w = workers.find(wr => wr.id === id);
+          if (w && !affectedWorkerIds.some(aid => {
+            // Still affected by another collapsed tunnel?
+            const otherCollapsedTunnel = MINE_TUNNELS.find(t =>
+              collapsedTunnelIds.includes(t.id) && (t.from === w.nodeId || t.to === w.nodeId)
+            );
+            return !!otherCollapsedTunnel;
+          })) {
+            w.status = 'SAFE';
+            w.movement = 'Stationary';
+          }
+        });
       }
-      // Recompute routes
-      workerRoutes = computeAllWorkerRoutes(workers, tunnelStates);
+    } else {
+      // ── Collapse tunnel ────────────────────────────────────────
+      state.status = 'COLLAPSED';
+      state.riskLevel = 'COLLAPSED';
+      if (!collapsedTunnelIds.includes(tunnelId)) {
+        collapsedTunnelIds.push(tunnelId);
+      }
+
+      // Activate emergency mode
+      emergencyModeActive = true;
+
+      // Find workers at or near nodes connected by this tunnel and mark them EVACUATING
+      const adjacentNodes = tunnelDef ? [tunnelDef.from, tunnelDef.to] : [];
+      const tunnelZone = tunnelDef?.zone?.charAt(0); // e.g. 'B' from 'B' or 'BC'
+
+      const newlyAffected = workers.filter(w => {
+        // Worker is at a node directly connected to this tunnel
+        const atAdjacent = adjacentNodes.includes(w.nodeId);
+        // OR worker is in the same zone as the collapsed tunnel
+        const inSameZone = tunnelZone && w.zone === tunnelZone;
+        return atAdjacent || inSameZone;
+      });
+
+      newlyAffected.forEach(w => {
+        w.status = 'EVACUATING';
+        w.movement = 'Rapid';
+        if (!affectedWorkerIds.includes(w.id)) {
+          affectedWorkerIds.push(w.id);
+        }
+      });
+
+      // Push an alert
+      alerts.unshift({
+        id: `ALT-${Date.now()}`,
+        severity: 'CRITICAL',
+        title: `🚨 TUNNEL ${tunnelId} BLOCKED — EMERGENCY REROUTING`,
+        location: tunnelDef ? `Zone ${tunnelDef.zone} — ${tunnelDef.label}` : `Tunnel ${tunnelId}`,
+        description: `Strata blockage in ${tunnelId}. Affected miners automatically set to EVACUATING. Dijkstra shortest-safe-path recalculated.`,
+        timestamp: new Date().toISOString(),
+      });
     }
+
+    // Recompute routes for all workers with updated tunnel graph
+    workerRoutes = computeAllWorkerRoutes(workers, tunnelStates);
   }
 
   function relocateWorker(workerId, nodeId) {
