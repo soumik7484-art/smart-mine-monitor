@@ -204,12 +204,18 @@ export const MineProvider = ({ children }) => {
     // Update persistent adminSession in state & localStorage so the miner stays saved
     setAdminSession((prev) => {
       const currentMiners = prev?.miners && Array.isArray(prev.miners) ? prev.miners : [];
+      // Deduplicate by ID — ensure the new worker isn't already in the list
+      const existingIds = new Set(currentMiners.map(m => m.id));
+      const mergedMiners = existingIds.has(newWorker.id)
+        ? currentMiners
+        : [...currentMiners, newWorker];
+
       const updatedSession = prev
-        ? { ...prev, miners: [...currentMiners, newWorker] }
+        ? { ...prev, miners: mergedMiners }
         : {
             timestamp: Date.now(),
             admin: { fullName: 'Safety Controller', role: 'Mine Manager', mineName: 'Chandrapur Deep Mine' },
-            miners: [...engine.getState().workers],
+            miners: mergedMiners,
           };
       try {
         localStorage.setItem('mineguard_active_session', JSON.stringify(updatedSession));
@@ -450,29 +456,26 @@ export const MineProvider = ({ children }) => {
     const loc = tunnelObj ? `Zone ${tunnelObj.zone} — ${tunnelObj.label} (${tunnelId})` : `Tunnel ${tunnelId}`;
 
     if (!wasCollapsed) {
-      // Tunnel was blocked / collapsed on map
-      const adjacentNodes = tunnelObj ? [tunnelObj.from, tunnelObj.to] : [];
-      const minersInRoad = (newState.workers || []).filter(w =>
-        adjacentNodes.includes(w.nodeId) || (tunnelObj?.zone && w.zone === tunnelObj.zone.charAt(0))
-      );
+      // Tunnel was blocked / collapsed on map — ALL workers underground must evacuate
+      const allWorkers = newState.workers || [];
 
-      if (minersInRoad.length > 0) {
-        // A miner is in or adjacent to the collapsed road!
+      if (allWorkers.length > 0) {
+        // Any workers underground → emergency siren
         audioSynth.playWarning();
         if (!isMuted) audioSynth.startSiren();
         setBannerNotification(
-          `🚨 EMERGENCY: Tunnel ${tunnelId} collapsed with ${minersInRoad.length} miner(s) in affected road (${minersInRoad.map(m => m.name).join(', ')})! Siren active.`
+          `🚨 EMERGENCY: Tunnel ${tunnelId} collapsed! All ${allWorkers.length} underground miner(s) (${allWorkers.map(m => m.name).join(', ')}) set to EVACUATING. Siren active.`
         );
         addToast({
-          title: `🚨 Siren Active: Tunnel ${tunnelId}`,
-          message: `${minersInRoad.length} miner(s) affected in collapsed road (${tunnelId})! Evacuation siren sounded.`,
+          title: `🚨 Siren Active: Tunnel ${tunnelId} Collapsed`,
+          message: `All ${allWorkers.length} miner(s) underground set to EVACUATING. Dijkstra safe routes computed.`,
           type: 'critical',
         });
       } else {
         audioSynth.playWarning();
         addToast({
           title: `Map Updated: ${tunnelId} Blocked`,
-          message: `Tunnel ${tunnelId} marked impassable. No personnel in this segment.`,
+          message: `Tunnel ${tunnelId} marked impassable. No personnel underground.`,
           type: 'warning',
         });
       }
@@ -480,10 +483,10 @@ export const MineProvider = ({ children }) => {
       logIncident({
         location: loc,
         event: `Manual blockage simulated on Map: ${tunnelId} marked IMPASSABLE`,
-        risk: minersInRoad.length > 0 ? 'CRITICAL' : 'HIGH',
-        action: minersInRoad.length > 0
-          ? `Evacuation siren activated; emergency detours computed for ${minersInRoad.length} personnel`
-          : 'Dynamic rerouting initiated for all personnel; tunnel flagged on digital mine CAD',
+        risk: allWorkers.length > 0 ? 'CRITICAL' : 'HIGH',
+        action: allWorkers.length > 0
+          ? `Evacuation siren activated; emergency detours computed for all ${allWorkers.length} underground personnel`
+          : 'Dynamic rerouting initiated; tunnel flagged on digital mine CAD',
         status: 'ACTIVE',
       });
     } else {
