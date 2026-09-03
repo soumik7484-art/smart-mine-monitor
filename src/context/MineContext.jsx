@@ -93,11 +93,17 @@ export const MineProvider = ({ children }) => {
   // Active Admin Session (from Admin Registration & Blueprint Portal)
   const [adminSession, setAdminSession] = useState(parseInitialSession);
 
-  // Sync custom workers into simulation engine when adminSession is loaded
+  // Sync custom workers into simulation engine when adminSession is loaded FROM STORAGE (initial mount only).
+  // We compare worker counts to avoid re-loading when a miner was just added via addMiner()
+  // (the engine already has the new worker; re-loading would duplicate it).
   useEffect(() => {
     if (adminSession?.miners && Array.isArray(adminSession.miners) && adminSession.miners.length > 0) {
-      engine.loadCustomWorkers(adminSession.miners);
-      setMineState(engine.getState());
+      const engineWorkers = engine.getState().workers;
+      // Only reload from session if the engine hasn't already been populated with these workers
+      if (engineWorkers.length !== adminSession.miners.length) {
+        engine.loadCustomWorkers(adminSession.miners);
+        setMineState(engine.getState());
+      }
     }
   }, [adminSession, engine]);
 
