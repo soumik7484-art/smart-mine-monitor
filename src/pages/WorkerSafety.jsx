@@ -12,6 +12,7 @@ import {
   Compass,
   AlertTriangle,
   CheckCircle2,
+  UserPlus,
 } from 'lucide-react';
 
 export default function WorkerSafety() {
@@ -21,6 +22,7 @@ export default function WorkerSafety() {
     selectedWorker,
     setSelectedWorker,
     emergencyModeActive,
+    setIsAddMinerModalOpen,
   } = useMine();
 
   const [activeWorker, setActiveWorker] = useState(selectedWorker || workers[0]);
@@ -104,9 +106,20 @@ export default function WorkerSafety() {
       {/* Workers Roster Table */}
       <div className="card p-5 space-y-4 bg-mine-surface border border-mine-border">
         <div className="border-b border-mine-border pb-3 flex justify-between items-center">
-          <h2 className="text-sm font-semibold text-mine-text-primary">
-            Subsurface Mining Personnel Roster (8 Active Tags)
-          </h2>
+          <div className="flex items-center gap-2.5">
+            <h2 className="text-sm font-semibold text-mine-text-primary">
+              Subsurface Mining Personnel Roster ({workers.length} Active Tags)
+            </h2>
+            <button
+              type="button"
+              onClick={() => setIsAddMinerModalOpen(true)}
+              className="flex items-center gap-1 text-xs px-2.5 py-1 rounded bg-status-attention/15 border border-status-attention/40 text-status-attention hover:bg-status-attention hover:text-white transition font-semibold shadow-sm"
+              title="Deploy new miner underground"
+            >
+              <UserPlus className="h-3.5 w-3.5" />
+              <span>+ Add Miner</span>
+            </button>
+          </div>
           <span className="text-xs font-mono text-mine-text-secondary">
             Click row to inspect miner telemetry
           </span>

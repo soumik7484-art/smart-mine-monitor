@@ -493,6 +493,43 @@ export function createSimulationEngine() {
     activeRouteWorkerId = 'W-003';
   }
 
+  function addWorker(workerData) {
+    const nextNum = workers.length + 1;
+    const defaultNodes = ['J7', 'J8', 'J9', 'J10', 'J11', 'J12', 'J13', 'J14'];
+    const nodeId = workerData.nodeId || defaultNodes[(nextNum - 1) % defaultNodes.length];
+    const zone = workerData.zone || NODE_TO_ZONE[nodeId] || 'B';
+    const coords = nodePositionMap[nodeId] || { x: 400, y: 220 };
+
+    const newWorker = {
+      id: workerData.id || `W-${String(nextNum).padStart(3, '0')}`,
+      name: workerData.name?.trim() || `Miner ${nextNum}`,
+      phone: workerData.phone?.trim() || '',
+      role: workerData.role || 'Continuous Miner Operator',
+      zone: zone,
+      nodeId: nodeId,
+      helmet: workerData.helmet || 'Connected',
+      status: 'SAFE',
+      movement: 'Normal',
+      heartRate: workerData.heartRate || (72 + Math.floor(Math.random() * 10)),
+      tagBattery: workerData.tagBattery || (92 + Math.floor(Math.random() * 8)),
+      xCoord: coords.x,
+      yCoord: coords.y,
+      seamDepth: workerData.seamDepth || (-120 - ((nextNum - 1) * 15)),
+    };
+
+    workers.push(newWorker);
+
+    // Keep activeCustomWorkers persistent across any subsequent resets
+    if (activeCustomWorkers) {
+      activeCustomWorkers.push(newWorker);
+    } else {
+      activeCustomWorkers = JSON.parse(JSON.stringify(workers));
+    }
+
+    workerRoutes = computeAllWorkerRoutes(workers, tunnelStates);
+    return newWorker;
+  }
+
   return {
     tick,
     getState,
@@ -506,5 +543,6 @@ export function createSimulationEngine() {
     setActiveRouteWorker: (id) => { activeRouteWorkerId = id; },
     loadCustomWorkers,
     resetCustomWorkers,
+    addWorker,
   };
 }
