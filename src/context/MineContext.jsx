@@ -191,7 +191,7 @@ export const MineProvider = ({ children }) => {
     });
     if (redirectToPortal && typeof window !== 'undefined') {
       setTimeout(() => {
-        window.location.href = 'http://localhost:5000/';
+        window.location.href = 'http://localhost:5500/';
       }, 400);
     }
   }, [engine, addToast]);
