@@ -42,7 +42,9 @@ export const EmergencyHUDModal = () => {
 
   const handleDispatchSMS = () => {
     setBannerNotification('📱 EMERGENCY BROADCAST SENT: Evacuation coordinates pushed to miner helmet tags via LoRaWAN/BLE mesh.');
-  };  return (
+  };
+
+  return (
     <div className="fixed inset-0 z-50 flex items-start justify-center bg-black/60 backdrop-blur-sm overflow-y-auto p-4 sm:p-6 animate-fadeIn">
       {/* Container Box — sticky header + footer, scrollable body */}
       <div className="w-full max-w-7xl mx-auto bg-mine-surface border-2 border-status-critical rounded-lg shadow-2xl flex flex-col my-auto" style={{ maxHeight: '95vh' }}>
@@ -265,6 +267,5 @@ export const EmergencyHUDModal = () => {
         </div>
       </div>
     </div>
-  ); </div>
   );
 };
