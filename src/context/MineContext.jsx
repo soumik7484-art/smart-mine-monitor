@@ -439,27 +439,55 @@ export const MineProvider = ({ children }) => {
     engine.toggleTunnelBlock(tunnelId);
     const newState = engine.getState();
     setMineState(newState);
-    audioSynth.playClick();
 
     const tunnelObj = MINE_TUNNELS.find(t => t.id === tunnelId);
     const loc = tunnelObj ? `Zone ${tunnelObj.zone} — ${tunnelObj.label} (${tunnelId})` : `Tunnel ${tunnelId}`;
 
     if (!wasCollapsed) {
       // Tunnel was blocked / collapsed on map
+      const adjacentNodes = tunnelObj ? [tunnelObj.from, tunnelObj.to] : [];
+      const minersInRoad = (newState.workers || []).filter(w =>
+        adjacentNodes.includes(w.nodeId) || (tunnelObj?.zone && w.zone === tunnelObj.zone.charAt(0))
+      );
+
+      if (minersInRoad.length > 0) {
+        // A miner is in or adjacent to the collapsed road!
+        audioSynth.playWarning();
+        if (!isMuted) audioSynth.startSiren();
+        setBannerNotification(
+          `🚨 EMERGENCY: Tunnel ${tunnelId} collapsed with ${minersInRoad.length} miner(s) in affected road (${minersInRoad.map(m => m.name).join(', ')})! Siren active.`
+        );
+        addToast({
+          title: `🚨 Siren Active: Tunnel ${tunnelId}`,
+          message: `${minersInRoad.length} miner(s) affected in collapsed road (${tunnelId})! Evacuation siren sounded.`,
+          type: 'critical',
+        });
+      } else {
+        audioSynth.playWarning();
+        addToast({
+          title: `Map Updated: ${tunnelId} Blocked`,
+          message: `Tunnel ${tunnelId} marked impassable. No personnel in this segment.`,
+          type: 'warning',
+        });
+      }
+
       logIncident({
         location: loc,
         event: `Manual blockage simulated on Map: ${tunnelId} marked IMPASSABLE`,
-        risk: 'HIGH',
-        action: 'Dynamic rerouting initiated for all personnel; tunnel flagged on digital mine CAD',
+        risk: minersInRoad.length > 0 ? 'CRITICAL' : 'HIGH',
+        action: minersInRoad.length > 0
+          ? `Evacuation siren activated; emergency detours computed for ${minersInRoad.length} personnel`
+          : 'Dynamic rerouting initiated for all personnel; tunnel flagged on digital mine CAD',
         status: 'ACTIVE',
-      });
-      addToast({
-        title: `Map Updated: ${tunnelId} Blocked`,
-        message: `Tunnel ${tunnelId} marked impassable. Incident audit log updated.`,
-        type: 'warning',
       });
     } else {
       // Tunnel was cleared / reopened on map
+      const stillHasEvac = (newState.workers || []).some(w => w.status === 'EVACUATING');
+      if (!stillHasEvac || newState.collapsedTunnelIds.length === 0) {
+        audioSynth.stopSiren();
+        setBannerNotification(null);
+      }
+      audioSynth.playSuccess();
       logIncident({
         location: loc,
         event: `Tunnel ${tunnelId} cleared and declared structurally secure`,
@@ -473,7 +501,7 @@ export const MineProvider = ({ children }) => {
         type: 'success',
       });
     }
-  }, [engine, mineState.tunnelStates, logIncident, addToast]);
+  }, [engine, mineState.tunnelStates, isMuted, logIncident, addToast]);
 
   // ─── Real Map Change Handler: Relocate Miner Underground ─────────────
   const relocateWorker = useCallback((workerId, nodeId) => {
@@ -525,10 +553,15 @@ export const MineProvider = ({ children }) => {
 
   const silenceSiren = useCallback(() => {
     audioSynth.stopSiren();
+    setMineState(prev => ({ ...prev, sirenActive: false }));
   }, []);
 
   const toggleMute = useCallback(() => {
-    setIsMuted(prev => !prev);
+    setIsMuted(prev => {
+      const next = !prev;
+      audioSynth.setMuted(next);
+      return next;
+    });
   }, []);
 
   // ─── Keyboard Shortcut: Ctrl+Shift+E ─────────────────────────────────
