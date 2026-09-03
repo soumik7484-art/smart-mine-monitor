@@ -1,7 +1,7 @@
 // MINEGUARD AI — Central Simulation Engine
 // State machine managing 24 sensors, 8 workers, tunnel states, anomaly injection, collapse simulation
 
-import { INITIAL_SENSORS, INITIAL_WORKERS, MINE_TUNNELS } from '../data/mineData.js';
+import { INITIAL_SENSORS, INITIAL_WORKERS, MINE_TUNNELS, MINE_NODES, MINE_EXITS } from '../data/mineData.js';
 import { computeSafeRoute, computeAllWorkerRoutes } from './graphRouting.js';
 import { calculateAIPrediction } from './aiPrediction.js';
 
@@ -26,6 +26,11 @@ export function createSimulationEngine() {
   let alerts = [];
   let workerRoutes = {};
   let activeRouteWorkerId = 'W-003'; // Default to Zone B worker
+
+  const nodePositionMap = {};
+  MINE_NODES.forEach(n => { nodePositionMap[n.id] = { x: n.x, y: n.y }; });
+  MINE_EXITS.forEach(e => { nodePositionMap[e.id] = { x: e.x, y: e.y }; });
+
 
   // Initialize sensor history
   sensors.forEach(s => {
@@ -145,6 +150,24 @@ export function createSimulationEngine() {
         s.battery = Math.max(5, s.battery - 1);
       });
     }
+
+    // Worker biometric micro-simulation (Smart Helmet & Tag)
+    workers.forEach(w => {
+      if (w.helmet === 'Connected') {
+        if (w.status === 'EVACUATING') {
+          const cur = w.heartRate || 108;
+          w.heartRate = Math.min(125, Math.max(98, Math.round(cur + (Math.random() - 0.45) * 3)));
+        } else {
+          const base = w.heartRate || 72;
+          w.heartRate = Math.min(84, Math.max(64, Math.round(base + (Math.random() - 0.5) * 2)));
+        }
+      } else {
+        w.heartRate = 0;
+      }
+      if (tickCount % 60 === 0 && w.tagBattery > 5) {
+        w.tagBattery = Math.max(5, w.tagBattery - 1);
+      }
+    });
   }
 
   function triggerSubsidence() {
@@ -209,7 +232,12 @@ export function createSimulationEngine() {
         if (route && route.routeNodes.length > 0) {
           const currentIndex = route.routeNodes.indexOf(w.nodeId);
           if (currentIndex >= 0 && currentIndex < route.routeNodes.length - 1) {
-            w.nodeId = route.routeNodes[currentIndex + 1];
+            const nextNodeId = route.routeNodes[currentIndex + 1];
+            w.nodeId = nextNodeId;
+            if (nodePositionMap[nextNodeId]) {
+              w.xCoord = nodePositionMap[nextNodeId].x;
+              w.yCoord = nodePositionMap[nextNodeId].y;
+            }
           } else if (currentIndex === route.routeNodes.length - 1) {
             w.status = 'SAFE';
             w.movement = 'Stationary';
@@ -217,6 +245,7 @@ export function createSimulationEngine() {
         }
       }
     });
+
   }
 
   function resetToNormal() {
@@ -286,6 +315,10 @@ export function createSimulationEngine() {
     const worker = workers.find(w => w.id === workerId);
     if (worker) {
       worker.nodeId = nodeId;
+      if (nodePositionMap[nodeId]) {
+        worker.xCoord = nodePositionMap[nodeId].x;
+        worker.yCoord = nodePositionMap[nodeId].y;
+      }
       // Recompute route for this worker
       const route = computeSafeRoute(nodeId, null, tunnelStates);
       if (route) {
