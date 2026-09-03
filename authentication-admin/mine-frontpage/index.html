@@ -1,0 +1,849 @@
+<!DOCTYPE html>
+<html lang="en" data-theme="light">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <meta name="description" content="MineGuard AI - Admin Registration & Underground Mine Blueprint Upload for Real-Time Mine Subsidence Monitoring & Early Warning System">
+  <title>MineGuard AI | Admin Registration & Underground Mine Blueprint Configuration</title>
+
+  <!-- Google Fonts: Inter (UI), Rajdhani (Industrial Tech), JetBrains Mono (Telemetry) -->
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700&family=JetBrains+Mono:wght@400;500;600;700&family=Rajdhani:wght@500;600;700&display=swap" rel="stylesheet">
+
+  <!-- Core Stylesheet -->
+  <link rel="stylesheet" href="css/styles.css">
+</head>
+<body>
+
+  <!-- ========================================================================
+       Atmospheric Underground Mine Tunnel Layer (Visual Background + Parallax)
+       ======================================================================== -->
+  <div class="tunnel-viewport" aria-hidden="true">
+    <div class="tunnel-bg-image"></div>
+    <div class="tunnel-overlay"></div>
+    <div class="tunnel-light-sweep"></div>
+    <div class="tunnel-scanlines"></div>
+    <canvas id="dust-canvas"></canvas>
+  </div>
+
+  <!-- ========================================================================
+       Top Industrial Telemetry & Status Bar
+       ======================================================================== -->
+  <header class="top-telemetry-bar" role="banner">
+    <div class="telemetry-left">
+      <div class="telemetry-badge">
+        <span class="pulse-indicator"></span>
+        <span>SUBSURFACE TELEMETRY ACTIVE</span>
+      </div>
+      <div class="telemetry-item">
+        <span>GRID FREQ:</span>
+        <strong>100 Hz InSAR</strong>
+      </div>
+      <div class="telemetry-item">
+        <span>SECURITY:</span>
+        <strong>AES-256 ENCRYPTED</strong>
+      </div>
+    </div>
+    <div class="telemetry-right">
+      <div class="telemetry-item">
+        <span>SYS TIME:</span>
+        <strong id="telemetry-clock">00:00:00 UTC</strong>
+      </div>
+      <div class="telemetry-item">
+        <span>REGULATORY:</span>
+        <strong>DGMS COMPLIANT</strong>
+      </div>
+      <div class="telemetry-item">
+        <button type="button" id="theme-toggle-btn" class="theme-toggle-btn" aria-label="Toggle theme" title="Switch Theme">
+          <span id="theme-toggle-icon">☀️</span>
+          <span id="theme-toggle-text">LIGHT</span>
+        </button>
+      </div>
+    </div>
+  </header>
+
+  <!-- ========================================================================
+       Main Application Container
+       ======================================================================== -->
+  <main class="page-wrapper" role="main">
+    <div class="mine-card">
+      <!-- Technical Corner Brackets -->
+      <span class="corner-bracket corner-tl"></span>
+      <span class="corner-bracket corner-tr"></span>
+      <span class="corner-bracket corner-bl"></span>
+      <span class="corner-bracket corner-br"></span>
+
+      <!-- ====================================================================
+           Header Component
+           ==================================================================== -->
+      <section class="card-header">
+        <div class="header-brand-group">
+          <div class="brand-icon-wrapper" aria-hidden="true">
+            <span class="brand-icon-ring"></span>
+            <!-- Underground Mine & Seismic Radar SVG Icon -->
+            <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round">
+              <polygon points="12 2 2 7 12 12 22 7 12 2"></polygon>
+              <polyline points="2 17 12 22 22 17"></polyline>
+              <polyline points="2 12 12 17 22 12"></polyline>
+              <circle cx="12" cy="12" r="2" fill="currentColor"></circle>
+            </svg>
+          </div>
+          <div class="brand-text-container">
+            <div class="brand-title-row">
+              <h1 class="brand-title">MineGuard <span>AI</span></h1>
+              <span class="ai-pill">v2.4 TELEMETRY</span>
+            </div>
+            <p class="brand-subtitle">AI-Powered Mine Subsidence Monitoring &amp; Early Warning System</p>
+            <div class="brand-page-tag">
+              <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2">
+                <path d="M14.7 6.3a1 1 0 0 0 0 1.4l1.6 1.6a1 1 0 0 0 1.4 0l3.77-3.77a6 6 0 0 1-7.94 7.94l-6.91 6.91a2.12 2.12 0 0 1-3-3l6.91-6.91a6 6 0 0 1 7.94-7.94l-3.76 3.76z"></path>
+              </svg>
+              <span>Admin &amp; Mine Site Configuration</span>
+            </div>
+          </div>
+        </div>
+
+        <div class="header-status-group">
+          <div class="step-flow-indicator" aria-label="Configuration Pipeline Step 1 of 3">
+            <span class="step-badge">STAGE 01</span>
+            <span class="step-divider">/</span>
+            <span class="step-label">ADMIN, BLUEPRINT &amp; WORKFORCE</span>
+          </div>
+        </div>
+      </section>
+
+      <!-- ====================================================================
+           Card Body: Forms & Upload
+           ==================================================================== -->
+      <div class="card-body">
+        <form id="mine-registration-form" novalidate onsubmit="return false;">
+          
+          <div class="form-grid-layout">
+
+            <!-- ================================================================
+                 SECTION 1: Admin Details
+                 ================================================================ -->
+            <section class="admin-form-col" aria-labelledby="section-admin-title">
+              <div class="section-header-block">
+                <div class="section-icon-badge" aria-hidden="true">
+                  <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+                    <path d="M16 21v-2a4 4 0 0 0-4-4H6a4 4 0 0 0-4 4v2"></path>
+                    <circle cx="9" cy="7" r="4"></circle>
+                    <path d="M22 21v-2a4 4 0 0 0-3-3.87"></path>
+                    <path d="M16 3.13a4 4 0 0 1 0 7.75"></path>
+                  </svg>
+                </div>
+                <div>
+                  <h2 id="section-admin-title" class="section-title">Admin Information</h2>
+                  <p class="section-subtext">Register designated site controller credentials and colliery licensing details.</p>
+                </div>
+              </div>
+
+              <div class="form-fields-container">
+
+                <!-- 1. Full Name -->
+                <div class="form-group form-group-full">
+                  <label for="admin-full-name" class="form-label">
+                    <span>Full Name <span class="required-asterisk">*</span></span>
+                    <span class="field-hint">Primary Admin</span>
+                  </label>
+                  <div class="input-wrapper">
+                    <span class="input-icon-prefix" aria-hidden="true">
+                      <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                        <path d="M20 21v-2a4 4 0 0 0-4-4H8a4 4 0 0 0-4 4v2"></path>
+                        <circle cx="12" cy="7" r="4"></circle>
+                      </svg>
+                    </span>
+                    <input 
+                      type="text" 
+                      id="admin-full-name" 
+                      class="form-input" 
+                      placeholder="Enter admin full name" 
+                      required 
+                      autocomplete="name"
+                    >
+                    <span class="input-feedback-icon valid-icon" aria-hidden="true">
+                      <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5"><polyline points="20 6 9 17 4 12"></polyline></svg>
+                    </span>
+                    <span class="input-feedback-icon invalid-icon" aria-hidden="true">
+                      <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5"><circle cx="12" cy="12" r="10"></circle><line x1="12" y1="8" x2="12" y2="12"></line><line x1="12" y1="16" x2="12.01" y2="16"></line></svg>
+                    </span>
+                  </div>
+                  <span class="field-error-msg">Please enter a valid full name</span>
+                </div>
+
+                <!-- 2. Mobile Number (Country Code + 10 Digits) -->
+                <div class="form-group">
+                  <label for="admin-mobile-number" class="form-label">
+                    <span>Mobile Number <span class="required-asterisk">*</span></span>
+                    <span class="field-hint">SMS Alerts</span>
+                  </label>
+                  <div class="phone-input-combo">
+                    <div class="country-code-select-wrapper">
+                      <select id="country-code-select" class="country-code-select" aria-label="Country Dial Code">
+                        <option value="+91" selected>🇮🇳 +91</option>
+                        <option value="+1">🇺🇸 +1</option>
+                        <option value="+61">🇦🇺 +61</option>
+                        <option value="+27">🇿🇦 +27</option>
+                        <option value="+44">🇬🇧 +44</option>
+                        <option value="+49">🇩🇪 +49</option>
+                        <option value="+55">🇧🇷 +55</option>
+                        <option value="+62">🇮🇩 +62</option>
+                        <option value="+86">🇨🇳 +86</option>
+                      </select>
+                      <span class="select-arrow-country" aria-hidden="true">▼</span>
+                    </div>
+                    <div class="phone-number-field input-wrapper">
+                      <span class="input-icon-prefix" aria-hidden="true">
+                        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                          <path d="M22 16.92v3a2 2 0 0 1-2.18 2 19.79 19.79 0 0 1-8.63-3.07 19.5 19.5 0 0 1-6-6 19.79 19.79 0 0 1-3.07-8.67A2 2 0 0 1 4.11 2h3a2 2 0 0 1 2 1.72 12.84 12.84 0 0 0 .7 2.81 2 2 0 0 1-.45 2.11L8.09 9.91a16 16 0 0 0 6 6l1.27-1.27a2 2 0 0 1 2.11-.45 12.84 12.84 0 0 0 2.81.7A2 2 0 0 1 22 16.92z"></path>
+                        </svg>
+                      </span>
+                      <input 
+                        type="tel" 
+                        id="admin-mobile-number" 
+                        class="form-input" 
+                        placeholder="Enter 10-digit mobile number" 
+                        maxlength="10" 
+                        inputmode="numeric" 
+                        required
+                      >
+                      <span class="input-feedback-icon valid-icon" aria-hidden="true">
+                        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5"><polyline points="20 6 9 17 4 12"></polyline></svg>
+                      </span>
+                      <span class="input-feedback-icon invalid-icon" aria-hidden="true">
+                        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5"><circle cx="12" cy="12" r="10"></circle><line x1="12" y1="8" x2="12" y2="12"></line><line x1="12" y1="16" x2="12.01" y2="16"></line></svg>
+                      </span>
+                    </div>
+                  </div>
+                  <span class="field-error-msg">Please enter valid 10-digit mobile number</span>
+                </div>
+
+                <!-- 3. Email Address -->
+                <div class="form-group">
+                  <label for="admin-email" class="form-label">
+                    <span>Email Address <span class="required-asterisk">*</span></span>
+                    <span class="field-hint">Reports</span>
+                  </label>
+                  <div class="input-wrapper">
+                    <span class="input-icon-prefix" aria-hidden="true">
+                      <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                        <path d="M4 4h16c1.1 0 2 .9 2 2v12c0 1.1-.9 2-2 2H4c-1.1 0-2-.9-2-2V6c0-1.1.9-2 2-2z"></path>
+                        <polyline points="22,6 12,13 2,6"></polyline>
+                      </svg>
+                    </span>
+                    <input 
+                      type="email" 
+                      id="admin-email" 
+                      class="form-input" 
+                      placeholder="admin@example.com" 
+                      required 
+                      autocomplete="email"
+                    >
+                    <span class="input-feedback-icon valid-icon" aria-hidden="true">
+                      <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5"><polyline points="20 6 9 17 4 12"></polyline></svg>
+                    </span>
+                    <span class="input-feedback-icon invalid-icon" aria-hidden="true">
+                      <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5"><circle cx="12" cy="12" r="10"></circle><line x1="12" y1="8" x2="12" y2="12"></line><line x1="12" y1="16" x2="12.01" y2="16"></line></svg>
+                    </span>
+                  </div>
+                  <span class="field-error-msg">Please enter a valid email address</span>
+                </div>
+
+                <!-- 4. Admin Role Dropdown -->
+                <div class="form-group form-group-full">
+                  <label for="admin-role" class="form-label">
+                    <span>Admin Role <span class="required-asterisk">*</span></span>
+                    <span class="field-hint">Access Level</span>
+                  </label>
+                  <div class="select-wrapper">
+                    <span class="input-icon-prefix" aria-hidden="true">
+                      <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                        <path d="M12 22s8-4 8-10V5l-8-3-8 3v7c0 6 8 10 8 10z"></path>
+                      </svg>
+                    </span>
+                    <select id="admin-role" class="form-select" required>
+                      <option value="" disabled selected>Select administrative role...</option>
+                      <option value="Mine Administrator">Mine Administrator</option>
+                      <option value="Safety Officer">Safety Officer</option>
+                      <option value="Mine Manager">Mine Manager</option>
+                      <option value="Control Room Operator">Control Room Operator</option>
+                      <option value="Other">Other</option>
+                    </select>
+                    <span class="select-arrow-icon" aria-hidden="true">
+                      <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><polyline points="6 9 12 15 18 9"></polyline></svg>
+                    </span>
+                    <span class="input-feedback-icon valid-icon" aria-hidden="true">
+                      <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5"><polyline points="20 6 9 17 4 12"></polyline></svg>
+                    </span>
+                  </div>
+                  <span class="field-error-msg">Please select an administrative role</span>
+                </div>
+
+                <!-- 5. Mine / Project Name -->
+                <div class="form-group form-group-full">
+                  <label for="mine-name" class="form-label">
+                    <span>Mine / Project Name <span class="required-asterisk">*</span></span>
+                    <span class="field-hint">Site Identity</span>
+                  </label>
+                  <div class="input-wrapper">
+                    <span class="input-icon-prefix" aria-hidden="true">
+                      <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                        <rect x="2" y="7" width="20" height="14" rx="2" ry="2"></rect>
+                        <path d="M16 21V5a2 2 0 0 0-2-2h-4a2 2 0 0 0-2 2v16"></path>
+                      </svg>
+                    </span>
+                    <input 
+                      type="text" 
+                      id="mine-name" 
+                      class="form-input" 
+                      placeholder="Enter mine or project name (e.g. Deep Rock Colliery - Seam 4)" 
+                      required
+                    >
+                    <span class="input-feedback-icon valid-icon" aria-hidden="true">
+                      <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5"><polyline points="20 6 9 17 4 12"></polyline></svg>
+                    </span>
+                    <span class="input-feedback-icon invalid-icon" aria-hidden="true">
+                      <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5"><circle cx="12" cy="12" r="10"></circle><line x1="12" y1="8" x2="12" y2="12"></line><line x1="12" y1="16" x2="12.01" y2="16"></line></svg>
+                    </span>
+                  </div>
+                  <span class="field-error-msg">Mine or project name is required</span>
+                </div>
+
+                <!-- 6. Mine Location -->
+                <div class="form-group">
+                  <label for="mine-location" class="form-label">
+                    <span>Mine Location <span class="required-asterisk">*</span></span>
+                    <span class="field-hint">Basin / Region</span>
+                  </label>
+                  <div class="input-wrapper">
+                    <span class="input-icon-prefix" aria-hidden="true">
+                      <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                        <path d="M21 10c0 7-9 13-9 13s-9-6-9-13a9 9 0 0 1 18 0z"></path>
+                        <circle cx="12" cy="10" r="3"></circle>
+                      </svg>
+                    </span>
+                    <input 
+                      type="text" 
+                      id="mine-location" 
+                      class="form-input" 
+                      placeholder="Enter mine location (e.g. Jharia Coalfield, Dhanbad)" 
+                      required
+                    >
+                    <span class="input-feedback-icon valid-icon" aria-hidden="true">
+                      <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5"><polyline points="20 6 9 17 4 12"></polyline></svg>
+                    </span>
+                    <span class="input-feedback-icon invalid-icon" aria-hidden="true">
+                      <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5"><circle cx="12" cy="12" r="10"></circle><line x1="12" y1="8" x2="12" y2="12"></line><line x1="12" y1="16" x2="12.01" y2="16"></line></svg>
+                    </span>
+                  </div>
+                  <span class="field-error-msg">Mine location is required</span>
+                </div>
+
+                <!-- 7. Mine ID / Registration ID -->
+                <div class="form-group">
+                  <label for="mine-id" class="form-label">
+                    <span>Mine ID / Reg. ID <span class="required-asterisk">*</span></span>
+                    <span class="field-hint">DGMS / Gov ID</span>
+                  </label>
+                  <div class="input-wrapper">
+                    <span class="input-icon-prefix" aria-hidden="true">
+                      <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                        <path d="M4 7V4a2 2 0 0 1 2-2h12a2 2 0 0 1 2 2v3"></path>
+                        <rect x="2" y="7" width="20" height="14" rx="2"></rect>
+                        <path d="M9 14h6"></path>
+                      </svg>
+                    </span>
+                    <input 
+                      type="text" 
+                      id="mine-id" 
+                      class="form-input" 
+                      placeholder="e.g. DGMS-COL-2024-8841" 
+                      required
+                    >
+                    <span class="input-feedback-icon valid-icon" aria-hidden="true">
+                      <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5"><polyline points="20 6 9 17 4 12"></polyline></svg>
+                    </span>
+                    <span class="input-feedback-icon invalid-icon" aria-hidden="true">
+                      <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5"><circle cx="12" cy="12" r="10"></circle><line x1="12" y1="8" x2="12" y2="12"></line><line x1="12" y1="16" x2="12.01" y2="16"></line></svg>
+                    </span>
+                  </div>
+                  <span class="field-error-msg">Valid Mine Identification is required</span>
+                </div>
+
+              </div>
+            </section>
+
+            <!-- ================================================================
+                 SECTION 2: Underground Mine Blueprint Upload
+                 ================================================================ -->
+            <section class="blueprint-upload-col" aria-labelledby="section-blueprint-title">
+              <div class="section-header-block">
+                <div class="section-icon-badge" aria-hidden="true">
+                  <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+                    <polygon points="1 6 1 22 8 18 16 22 23 18 23 2 16 6 8 2 1 6"></polygon>
+                    <line x1="8" y1="2" x2="8" y2="18"></line>
+                    <line x1="16" y1="6" x2="16" y2="22"></line>
+                  </svg>
+                </div>
+                <div>
+                  <h2 id="section-blueprint-title" class="section-title">Upload Underground Mine Blueprint</h2>
+                  <p class="section-subtext">Upload the blueprint/map of the underground mine to configure monitoring zones and sensor locations.</p>
+                </div>
+              </div>
+
+              <div class="upload-card-wrapper">
+                
+                <!-- Hidden file input for OS dialog -->
+                <input 
+                  type="file" 
+                  id="blueprint-file-input" 
+                  accept=".pdf,.png,.jpg,.jpeg" 
+                  style="display: none;" 
+                  aria-label="Upload mine blueprint file"
+                >
+
+                <!-- Drag & Drop Upload Zone -->
+                <div id="dropzone" class="dropzone-box" role="button" tabindex="0" aria-label="Drop mine blueprint file here or click browse files">
+                  <div class="dropzone-inner">
+                    <div class="dropzone-icon-circle" aria-hidden="true">
+                      <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+                        <path d="M21 15v4a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2v-4"></path>
+                        <polyline points="17 8 12 3 7 8"></polyline>
+                        <line x1="12" y1="3" x2="12" y2="15"></line>
+                      </svg>
+                    </div>
+                    <span class="dropzone-primary-text">Drag &amp; Drop your mine blueprint here</span>
+                    <span class="dropzone-divider-text">or</span>
+                    <button type="button" id="btn-browse" class="btn-browse">
+                      <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" aria-hidden="true">
+                        <path d="M22 19a2 2 0 0 1-2 2H4a2 2 0 0 1-2-2V5a2 2 0 0 1 2-2h5l2 3h9a2 2 0 0 1 2 2z"></path>
+                      </svg>
+                      <span>Browse Files</span>
+                    </button>
+                  </div>
+
+                  <div class="dropzone-specs-bar">
+                    <span class="specs-format">Accepted: <strong>PDF, PNG, JPG, JPEG</strong></span>
+                    <span class="specs-size">Max file size: <strong>10 MB</strong></span>
+                  </div>
+                </div>
+
+                <!-- Instant Evaluator Sample Loader -->
+                <div class="sample-blueprint-prompt">
+                  <div class="sample-prompt-text">
+                    <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" aria-hidden="true">
+                      <circle cx="12" cy="12" r="10"></circle>
+                      <line x1="12" y1="16" x2="12" y2="12"></line>
+                      <line x1="12" y1="8" x2="12.01" y2="8"></line>
+                    </svg>
+                    <span>Testing the system? Load an authentic DGMS CAD blueprint:</span>
+                  </div>
+                  <button type="button" id="btn-sample-blueprint" class="btn-sample-blueprint">
+                    Load Sample (Seam-4)
+                  </button>
+                </div>
+
+                <!-- Upload Error / Alert Box -->
+                <div id="upload-alert-box" class="upload-alert-box" role="alert">
+                  <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                    <circle cx="12" cy="12" r="10"></circle>
+                    <line x1="12" y1="8" x2="12" y2="12"></line>
+                    <line x1="12" y1="16" x2="12.01" y2="16"></line>
+                  </svg>
+                  <span id="upload-alert-msg">Invalid file or size limit exceeded</span>
+                </div>
+
+                <!-- Uploaded File Details & Progress Card -->
+                <div id="uploaded-file-card" class="uploaded-file-card">
+                  <div class="file-header-row">
+                    <div class="file-meta-group">
+                      <div id="file-type-icon" class="file-type-icon">JPG</div>
+                      <div class="file-name-meta">
+                        <span id="file-display-name" class="file-display-name">mine_seam4_blueprint.jpg</span>
+                        <div id="file-details-sub" class="file-details-sub">
+                          <span>JPEG</span> • <span>934 KB</span> • <span class="file-status-pill">✓ Verified DGMS Grid</span>
+                        </div>
+                      </div>
+                    </div>
+                    <div class="file-actions-group">
+                      <button type="button" id="btn-preview-file" class="btn-file-action" title="Preview Blueprint" aria-label="Preview Blueprint">
+                        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                          <path d="M1 12s4-8 11-8 11 8 11 8-4 8-11 8-11-8-11-8z"></path>
+                          <circle cx="12" cy="12" r="3"></circle>
+                        </svg>
+                      </button>
+                      <button type="button" id="btn-delete-file" class="btn-file-action btn-file-delete" title="Remove Blueprint" aria-label="Remove Blueprint">
+                        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                          <polyline points="3 6 5 6 21 6"></polyline>
+                          <path d="M19 6v14a2 2 0 0 1-2 2H7a2 2 0 0 1-2-2V6m3 0V4a2 2 0 0 1 2-2h4a2 2 0 0 1 2 2v2"></path>
+                        </svg>
+                      </button>
+                    </div>
+                  </div>
+
+                  <!-- Upload Progress Bar -->
+                  <div id="upload-progress-wrapper" class="upload-progress-wrapper">
+                    <div class="progress-labels">
+                      <span id="upload-progress-speed">Uploading 3.8 MB/s</span>
+                      <span id="upload-progress-percent">65%</span>
+                    </div>
+                    <div class="progress-track">
+                      <div id="upload-progress-fill" class="progress-fill"></div>
+                    </div>
+                  </div>
+
+                  <!-- Blueprint Thumbnail Preview with Click-to-Enlarge HUD -->
+                  <div id="blueprint-thumbnail-preview" class="blueprint-thumbnail-preview">
+                    <img id="blueprint-thumb-img" class="blueprint-thumbnail-img" src="assets/sample_mine_blueprint.jpg" alt="Underground mine blueprint preview">
+                    <div class="blueprint-overlay-hud">
+                      <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                        <path d="M15 3h6v6"></path>
+                        <path d="M9 21H3v-6"></path>
+                        <path d="M21 3l-7 7"></path>
+                        <path d="M3 21l7-7"></path>
+                      </svg>
+                      <span>CLICK TO INSPECT CAD COORDINATE GRID</span>
+                    </div>
+                  </div>
+                </div>
+
+              </div>
+            </section>
+
+          </div>
+
+          <!-- ================================================================
+               SECTION 3: Underground Miner Deployment & Shift Manifest
+               ================================================================ -->
+          <section class="miners-manifest-section" aria-labelledby="section-miners-title">
+            <div class="section-header-block miners-header-block">
+              <div class="section-icon-badge badge-amber" aria-hidden="true">
+                <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+                  <path d="M2 18a1 1 0 0 0 1 1h18a1 1 0 0 0 1-1v-2a1 1 0 0 0-1-1H3a1 1 0 0 0-1 1v2z"></path>
+                  <path d="M10 10V5a2 2 0 0 1 4 0v5"></path>
+                  <path d="M4 15v-3a8 8 0 0 1 16 0v3"></path>
+                </svg>
+              </div>
+              <div class="miners-header-text">
+                <div class="title-with-pill">
+                  <h2 id="section-miners-title" class="section-title">Underground Miner Deployment &amp; Manifest</h2>
+                  <span class="manifest-pill" id="miner-count-badge">0 MINERS ACTIVE</span>
+                </div>
+                <p class="section-subtext">Specify the number of miners going to work in the mine and register their full names and phone numbers for emergency evacuation broadcasts and live shift tracking.</p>
+              </div>
+            </div>
+
+            <!-- Top Control Bar: Total Miners Stepper & Quick Actions -->
+            <div class="miners-toolbar-card">
+              <div class="miners-count-control-group">
+                <label for="miners-count-input" class="form-label">
+                  <span>Number of Miners Going to Work <span class="required-asterisk">*</span></span>
+                  <span class="field-hint">Shift Personnel (1 - 50)</span>
+                </label>
+                <div class="stepper-control-box miners-stepper-box">
+                  <button type="button" id="miners-minus" class="stepper-btn" aria-label="Decrease Miners">
+                    <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5"><line x1="5" y1="12" x2="19" y2="12"></line></svg>
+                  </button>
+                  <input type="number" id="miners-count-input" class="stepper-input" value="0" min="1" max="50" aria-label="Number of miners on shift">
+                  <button type="button" id="miners-plus" class="stepper-btn" aria-label="Increase Miners">
+                    <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5"><line x1="12" y1="5" x2="12" y2="19"></line><line x1="5" y1="12" x2="19" y2="12"></line></svg>
+                  </button>
+                </div>
+              </div>
+
+              <div class="miners-actions-wrapper">
+                <button type="button" id="btn-add-miner" class="btn-action-miner btn-add-miner-primary">
+                  <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5">
+                    <line x1="12" y1="5" x2="12" y2="19"></line>
+                    <line x1="5" y1="12" x2="19" y2="12"></line>
+                  </svg>
+                  <span>Add Miner</span>
+                </button>
+                <button type="button" id="btn-sample-miners" class="btn-action-miner btn-sample-crew">
+                  <svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                    <polygon points="13 2 3 14 12 14 11 22 21 10 12 10 13 2"></polygon>
+                  </svg>
+                  <span>Load Sample Crew (4 Miners)</span>
+                </button>
+                <button type="button" id="btn-clear-miners" class="btn-action-miner btn-clear-crew" title="Clear all miner entries">
+                  <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                    <polyline points="3 6 5 6 21 6"></polyline>
+                    <path d="M19 6v14a2 2 0 0 1-2 2H7a2 2 0 0 1-2-2V6m3 0V4a2 2 0 0 1 2-2h4a2 2 0 0 1 2 2v2"></path>
+                  </svg>
+                  <span>Clear</span>
+                </button>
+              </div>
+            </div>
+
+            <!-- Dynamic Miner Manifest List Container -->
+            <div id="miners-manifest-container" class="miners-manifest-container">
+              <!-- Empty state when no miners are added -->
+              <div id="miners-empty-state" class="miners-empty-state">
+                <div class="empty-state-icon" aria-hidden="true">
+                  <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8">
+                    <path d="M17 21v-2a4 4 0 0 0-4-4H5a4 4 0 0 0-4 4v2"></path>
+                    <circle cx="9" cy="7" r="4"></circle>
+                    <path d="M23 21v-2a4 4 0 0 0-3-3.87"></path>
+                    <path d="M16 3.13a4 4 0 0 1 0 7.75"></path>
+                  </svg>
+                </div>
+                <div class="empty-state-text">
+                  <h4>No Underground Miners Registered Yet</h4>
+                  <p>Increase the count above, click <strong>"+ Add Miner"</strong>, or load the <strong>Sample Shift Crew</strong> to add the miners going to work in the mine.</p>
+                </div>
+              </div>
+
+              <!-- List of miner cards / rows (managed dynamically via JS) -->
+              <div id="miners-cards-grid" class="miners-cards-grid" role="list"></div>
+            </div>
+
+            <!-- Safety Evacuation & Telemetry Dispatch Notice -->
+            <div class="miners-safety-notice">
+              <div class="safety-icon-box" aria-hidden="true">
+                <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                  <path d="M12 22s8-4 8-10V5l-8-3-8 3v7c0 6 8 10 8 10z"></path>
+                </svg>
+              </div>
+              <div class="safety-notice-text">
+                <strong>DGMS Subterranean Safety Protocol:</strong> Each registered miner's phone number is synchronized with the MineGuard AI InSAR telemetry grid. In the event of impending roof subsidence or geological strata shifts, automated SMS evacuation instructions are instantly dispatched.
+              </div>
+            </div>
+
+          </section>
+
+          <!-- ================================================================
+               SECTION 4: Monitoring Configuration
+               ================================================================ -->
+          <section class="monitoring-config-section" aria-labelledby="section-config-title">
+            <div class="section-header-block">
+              <div class="section-icon-badge" aria-hidden="true">
+                <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+                  <circle cx="12" cy="12" r="3"></circle>
+                  <path d="M19.4 15a1.65 1.65 0 0 0 .33 1.82l.06.06a2 2 0 0 1 0 2.83 2 2 0 0 1-2.83 0l-.06-.06a1.65 1.65 0 0 0-1.82-.33 1.65 1.65 0 0 0-1 1.51V21a2 2 0 0 1-2 2 2 2 0 0 1-2-2v-.09A1.65 1.65 0 0 0 9 19.4a1.65 1.65 0 0 0-1.82.33l-.06.06a2 2 0 0 1-2.83 0 2 2 0 0 1 0-2.83l.06-.06a1.65 1.65 0 0 0 .33-1.82 1.65 1.65 0 0 0-1.51-1H3a2 2 0 0 1-2-2 2 2 0 0 1 2-2h.09A1.65 1.65 0 0 0 4.6 9a1.65 1.65 0 0 0-.33-1.82l-.06-.06a2 2 0 0 1 0-2.83 2 2 0 0 1 2.83 0l.06.06a1.65 1.65 0 0 0 1.82.33H9a1.65 1.65 0 0 0 1-1.51V3a2 2 0 0 1 2-2 2 2 0 0 1 2 2v.09a1.65 1.65 0 0 0 1 1.51 1.65 1.65 0 0 0 1.82-.33l.06-.06a2 2 0 0 1 2.83 0 2 2 0 0 1 0 2.83l-.06.06a1.65 1.65 0 0 0-.33 1.82V9a1.65 1.65 0 0 0 1.51 1H21a2 2 0 0 1 2 2 2 2 0 0 1-2 2h-.09a1.65 1.65 0 0 0-1.51 1z"></path>
+                </svg>
+              </div>
+              <div>
+                <h2 id="section-config-title" class="section-title">Monitoring Configuration</h2>
+                <p class="section-subtext">Calibrate initial seismic subsidence telemetry zones and sampling telemetry intervals.</p>
+              </div>
+            </div>
+
+            <div class="config-grid-row">
+
+              <!-- Number of Monitoring Zones -->
+              <div class="form-group">
+                <label for="zones-count-input" class="form-label">
+                  <span>Number of Monitoring Zones</span>
+                  <span class="field-hint">1 - 32 Zones</span>
+                </label>
+                <div class="stepper-control-box">
+                  <button type="button" id="zones-minus" class="stepper-btn" aria-label="Decrease Zones">
+                    <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5"><line x1="5" y1="12" x2="19" y2="12"></line></svg>
+                  </button>
+                  <input type="number" id="zones-count-input" class="stepper-input" value="4" min="1" max="32" readonly>
+                  <button type="button" id="zones-plus" class="stepper-btn" aria-label="Increase Zones">
+                    <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5"><line x1="12" y1="5" x2="12" y2="19"></line><line x1="5" y1="12" x2="19" y2="12"></line></svg>
+                  </button>
+                </div>
+              </div>
+
+              <!-- Expected Sensor Nodes -->
+              <div class="form-group">
+                <label for="nodes-count-input" class="form-label">
+                  <span>Expected Sensor Nodes</span>
+                  <span class="field-hint">InSAR + In-situ</span>
+                </label>
+                <div class="stepper-control-box">
+                  <button type="button" id="nodes-minus" class="stepper-btn" aria-label="Decrease Nodes">
+                    <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5"><line x1="5" y1="12" x2="19" y2="12"></line></svg>
+                  </button>
+                  <input type="number" id="nodes-count-input" class="stepper-input" value="16" min="4" max="256" readonly>
+                  <button type="button" id="nodes-plus" class="stepper-btn" aria-label="Increase Nodes">
+                    <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5"><line x1="12" y1="5" x2="12" y2="19"></line><line x1="5" y1="12" x2="19" y2="12"></line></svg>
+                  </button>
+                </div>
+              </div>
+
+              <!-- Monitoring Frequency -->
+              <div class="form-group">
+                <label for="monitoring-frequency" class="form-label">
+                  <span>Monitoring Frequency</span>
+                  <span class="field-hint">Real-Time Polling</span>
+                </label>
+                <div class="select-wrapper">
+                  <span class="input-icon-prefix" aria-hidden="true">
+                    <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                      <circle cx="12" cy="12" r="10"></circle>
+                      <polyline points="12 6 12 12 16 14"></polyline>
+                    </svg>
+                  </span>
+                  <select id="monitoring-frequency" class="form-select">
+                    <option value="1 second">1 second (High Criticality)</option>
+                    <option value="5 seconds" selected>5 seconds (Standard Operational)</option>
+                    <option value="10 seconds">10 seconds</option>
+                    <option value="30 seconds">30 seconds</option>
+                    <option value="1 minute">1 minute (Economy Mode)</option>
+                  </select>
+                  <span class="select-arrow-icon" aria-hidden="true">
+                    <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><polyline points="6 9 12 15 18 9"></polyline></svg>
+                  </span>
+                </div>
+              </div>
+
+            </div>
+
+            <!-- Confirmation Checkbox -->
+            <label class="confirmation-attestation-block" for="blueprint-confirm-checkbox">
+              <div class="custom-checkbox-wrapper">
+                <input type="checkbox" id="blueprint-confirm-checkbox" class="custom-checkbox-input" required>
+                <div class="custom-checkbox-box" aria-hidden="true">
+                  <svg viewBox="0 0 24 24" fill="none" stroke="currentColor"><polyline points="20 6 9 17 4 12"></polyline></svg>
+                </div>
+              </div>
+              <span class="attestation-label-text">
+                <strong>I confirm that the uploaded blueprint represents the current underground mine layout</strong>, certified against DGMS mining safety standards and active longwall/bord-and-pillar operational seams.
+              </span>
+            </label>
+
+          </section>
+
+          <!-- ================================================================
+               Primary Actions Footer Bar
+               ================================================================ -->
+          <footer class="card-actions-footer">
+            <div class="footer-compliance-info">
+              <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" aria-hidden="true">
+                <path d="M12 22s8-4 8-10V5l-8-3-8 3v7c0 6 8 10 8 10z"></path>
+              </svg>
+              <span>Encrypted Colliery Portal • Authorized Mining Personnel Only</span>
+            </div>
+
+            <div class="action-buttons-group">
+              <!-- Secondary Action: Save & Continue Later -->
+              <button type="button" id="btn-save-draft" class="btn-secondary-save">
+                <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" aria-hidden="true">
+                  <path d="M19 21H5a2 2 0 0 1-2-2V5a2 2 0 0 1 2-2h11l5 5v11a2 2 0 0 1-2 2z"></path>
+                  <polyline points="17 21 17 13 7 13 7 21"></polyline>
+                  <polyline points="7 3 7 8 15 8"></polyline>
+                </svg>
+                <span>Save &amp; Continue Later</span>
+              </button>
+
+              <!-- Primary CTA: Continue to Mine Configuration -->
+              <button type="submit" id="btn-submit-config" class="btn-primary-cta" disabled aria-disabled="true">
+                <span class="cta-content-text">Continue to Mine Configuration</span>
+                <span class="cta-arrow-icon" aria-hidden="true">
+                  <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5">
+                    <line x1="5" y1="12" x2="19" y2="12"></line>
+                    <polyline points="12 5 19 12 12 19"></polyline>
+                  </svg>
+                </span>
+                <span class="cta-spinner" aria-hidden="true"></span>
+              </button>
+            </div>
+          </footer>
+
+        </form>
+      </div>
+    </div>
+  </main>
+
+  <!-- ========================================================================
+       Blueprint Inspection & Preview Modal
+       ======================================================================== -->
+  <div id="preview-modal" class="modal-backdrop" role="dialog" aria-modal="true" aria-labelledby="modal-preview-title">
+    <div class="blueprint-modal-dialog">
+      <div class="modal-header">
+        <div class="modal-title-group">
+          <svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="var(--accent-cyan-bright)" stroke-width="2">
+            <polygon points="1 6 1 22 8 18 16 22 23 18 23 2 16 6 8 2 1 6"></polygon>
+            <line x1="8" y1="2" x2="8" y2="18"></line>
+            <line x1="16" y1="6" x2="16" y2="22"></line>
+          </svg>
+          <h3 id="modal-preview-title" class="modal-title">CAD Blueprint Inspection Grid</h3>
+        </div>
+        <button type="button" id="btn-close-modal" class="btn-modal-close" aria-label="Close modal">
+          <svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><line x1="18" y1="6" x2="6" y2="18"></line><line x1="6" y1="6" x2="18" y2="18"></line></svg>
+        </button>
+      </div>
+      <div class="modal-body">
+        <div class="modal-blueprint-canvas-container">
+          <div class="cad-grid-overlay"></div>
+          <div class="cad-crosshairs">VECTOR GRID: 50m INTERVALS • DATUM WGS-84</div>
+          <img id="modal-blueprint-img" class="modal-blueprint-img" src="" alt="Underground Mine Technical CAD Blueprint">
+        </div>
+      </div>
+      <div class="modal-footer">
+        <span id="modal-file-name" style="font-family:var(--font-mono); font-size:0.8rem; color:var(--text-muted);">blueprint.jpg</span>
+        <button type="button" onclick="document.getElementById('preview-modal').classList.remove('is-visible');" class="btn-browse">Done Inspecting</button>
+      </div>
+    </div>
+  </div>
+
+  <!-- ========================================================================
+       Transition Modal: Mine Configured & AI Initialization Screen
+       ======================================================================== -->
+  <div id="transition-modal" class="modal-backdrop" role="dialog" aria-modal="true" aria-labelledby="modal-transition-title">
+    <div class="transition-dialog">
+      <div class="transition-icon-circle">
+        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5">
+          <polyline points="20 6 9 17 4 12"></polyline>
+        </svg>
+      </div>
+      <h3 id="modal-transition-title" class="transition-title">Mine Site Configured</h3>
+      <p style="color:var(--text-secondary); font-size:0.95rem; margin-top:0.4rem;">
+        Underground blueprint digitized. AI spatial subsidence prediction matrix successfully calibrated for real-time monitoring.
+      </p>
+
+      <div class="transition-summary-card">
+        <div>
+          <div class="summary-item-label">Designated Admin</div>
+          <div id="summary-admin" class="summary-item-val">-</div>
+        </div>
+        <div>
+          <div class="summary-item-label">Mine / Colliery</div>
+          <div id="summary-mine" class="summary-item-val">-</div>
+        </div>
+        <div>
+          <div class="summary-item-label">Mine Reg ID</div>
+          <div id="summary-mine-id" class="summary-item-val">-</div>
+        </div>
+        <div>
+          <div class="summary-item-label">Active Blueprint</div>
+          <div id="summary-blueprint" class="summary-item-val">-</div>
+        </div>
+        <div>
+          <div class="summary-item-label">Sensor Grid Deployment</div>
+          <div id="summary-zones" class="summary-item-val">-</div>
+        </div>
+        <div>
+          <div class="summary-item-label">Underground Shift Crew</div>
+          <div id="summary-miners" class="summary-item-val">-</div>
+        </div>
+        <div>
+          <div class="summary-item-label">Telemetry Sampling</div>
+          <div id="summary-frequency" class="summary-item-val">-</div>
+        </div>
+      </div>
+
+      <button type="button" id="btn-launch-dashboard" class="btn-launch-dashboard">
+        Proceed to Control Room Dashboard →
+      </button>
+      <button type="button" id="btn-close-transition" style="margin-top:0.85rem; background:transparent; border:none; color:var(--text-dim); font-size:0.8rem; cursor:pointer;">
+        Close &amp; Review Configuration
+      </button>
+    </div>
+  </div>
+
+  <!-- ========================================================================
+       Control Room Toast Notification Container
+       ======================================================================== -->
+  <div id="toast-container" class="toast-container" aria-live="polite"></div>
+
+  <!-- Scripts -->
+  <script src="js/tunnel-canvas.js"></script>
+  <script src="js/app.js"></script>
+</body>
+</html>
