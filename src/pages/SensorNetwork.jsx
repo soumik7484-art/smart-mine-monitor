@@ -14,6 +14,7 @@ import {
   RotateCcw,
   Thermometer,
   Droplets,
+  Layers,
 } from 'lucide-react';
 
 export default function SensorNetwork() {
@@ -22,7 +23,6 @@ export default function SensorNetwork() {
     selectedSensor,
     setSelectedSensor,
     setIsSensorSimulatorOpen,
-    triggerSubsidence,
     resetToNormal,
   } = useMine();
 
@@ -159,94 +159,75 @@ export default function SensorNetwork() {
         </div>
       </div>
 
-      {/* Primary Strata Telemetry Time-Series Waveforms (Structural) */}
-      <div className="card p-5 space-y-4 bg-mine-surface border border-mine-border">
-        <div className="border-b border-mine-border pb-3 flex justify-between items-center">
-          <div>
-            <h2 className="text-sm font-semibold text-mine-text-primary">
-              Primary Strata Geomechanical Waveforms
-            </h2>
-            <p className="text-xs text-mine-text-secondary">Rolling 30-data-point continuous sampling</p>
-          </div>
-          <span className="text-xs font-mono text-mine-text-secondary">Sampling: 100 Hz</span>
-        </div>
-
-        <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-4">
-          <SensorChart
-            label={`LVDT Displacement (${dispSensor.id})`}
-            data={dispSensor.history?.displacement || []}
-            dataKey="value"
-            unit="mm"
-            color="#C4820E"
-            height={150}
-          />
-          <SensorChart
-            label={`Clinometer Tilt (${tiltSensor.id})`}
-            data={tiltSensor.history?.tilt || []}
-            dataKey="value"
-            unit="°"
-            color="#D97706"
-            height={150}
-          />
-          <SensorChart
-            label={`Geophone Vibration (${vibSensor.id})`}
-            data={vibSensor.history?.vibration || []}
-            dataKey="value"
-            unit="g"
-            color="#C4362E"
-            height={150}
-          />
-          <SensorChart
-            label={`Pillar Stress (${stressSensor.id})`}
-            data={stressSensor.history?.stress || []}
-            dataKey="value"
-            unit="MPa"
-            color="#2D8A4E"
-            height={150}
-          />
-        </div>
-      </div>
-
-      {/* Subsurface Temperature & Moisture (Relative Humidity) Telemetry Waveforms */}
+      {/* Unified 6-Channel Strata & Environmental Telemetry Waveform Grid */}
       <div className="card p-5 space-y-4 bg-mine-surface border border-mine-border">
         <div className="border-b border-mine-border pb-3 flex flex-wrap justify-between items-center gap-2">
-          <div className="flex items-center gap-2">
-            <div className="p-1.5 rounded bg-status-attention-bg/40 text-status-attention">
-              <Thermometer className="h-4 w-4" />
-            </div>
-            <div>
+          <div>
+            <div className="flex items-center gap-2">
+              <Layers className="h-4 w-4 text-status-attention" />
               <h2 className="text-sm font-semibold text-mine-text-primary">
-                Subsurface Temperature & Moisture (Humidity) Waveforms
+                Primary Strata & Microclimate Time-Series Waveforms
               </h2>
-              <p className="text-xs text-mine-text-secondary">
-                Strata microclimate telemetry across galleried seams • Node: <strong>{envSensor.id} (Zone {envSensor.zone})</strong>
-              </p>
             </div>
+            <p className="text-xs text-mine-text-secondary mt-0.5">
+              Continuous 30-sample rolling telemetry across physical geomechanics and galleried environmental sensors
+            </p>
           </div>
-          <div className="flex items-center gap-3 text-xs font-mono">
-            <span className="flex items-center gap-1.5 text-status-attention font-medium">
-              <span className="w-2.5 h-2.5 rounded-full bg-amber-500" />
-              Temp: {envSensor.temperature?.toFixed(1)}°C
-            </span>
-            <span className="flex items-center gap-1.5 text-sky-600 font-medium">
-              <span className="w-2.5 h-2.5 rounded-full bg-sky-500" />
-              Moisture: {envSensor.humidity?.toFixed(1)}% RH
-            </span>
+          <div className="flex items-center gap-3 text-xs font-mono text-mine-text-secondary">
+            <span>Sampling: 100 Hz</span>
+            <span>•</span>
+            <span className="text-mine-text-primary">Zone B Profile ({envSensor.id})</span>
           </div>
         </div>
 
-        <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
-          <div className="p-3 rounded-lg bg-mine-surface-alt border border-mine-border">
-            <div className="flex items-center justify-between mb-2">
-              <span className="flex items-center gap-1.5 text-xs font-bold uppercase tracking-wider text-mine-text-secondary">
-                <Thermometer className="h-3.5 w-3.5 text-amber-500" />
-                Rock Mass Temperature Profile ({envSensor.id})
-              </span>
-              <span className="text-xs font-mono font-semibold text-mine-text-primary">
-                {envSensor.temperature?.toFixed(1)} °C
-              </span>
-            </div>
+        <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-4">
+          <div className="rounded-lg bg-mine-surface-alt p-3 border border-mine-border flex flex-col justify-between">
             <SensorChart
+              label={`LVDT Displacement (${dispSensor.id})`}
+              data={dispSensor.history?.displacement || []}
+              dataKey="value"
+              unit="mm"
+              color="#C4820E"
+              height={150}
+            />
+          </div>
+
+          <div className="rounded-lg bg-mine-surface-alt p-3 border border-mine-border flex flex-col justify-between">
+            <SensorChart
+              label={`Clinometer Tilt (${tiltSensor.id})`}
+              data={tiltSensor.history?.tilt || []}
+              dataKey="value"
+              unit="°"
+              color="#D97706"
+              height={150}
+            />
+          </div>
+
+          <div className="rounded-lg bg-mine-surface-alt p-3 border border-mine-border flex flex-col justify-between">
+            <SensorChart
+              label={`Geophone Vibration (${vibSensor.id})`}
+              data={vibSensor.history?.vibration || []}
+              dataKey="value"
+              unit="g"
+              color="#C4362E"
+              height={150}
+            />
+          </div>
+
+          <div className="rounded-lg bg-mine-surface-alt p-3 border border-mine-border flex flex-col justify-between">
+            <SensorChart
+              label={`Pillar Stress (${stressSensor.id})`}
+              data={stressSensor.history?.stress || []}
+              dataKey="value"
+              unit="MPa"
+              color="#2D8A4E"
+              height={150}
+            />
+          </div>
+
+          <div className="rounded-lg bg-mine-surface-alt p-3 border border-mine-border flex flex-col justify-between">
+            <SensorChart
+              label={`Rock Temperature (${envSensor.id})`}
               data={envSensor.history?.temperature || []}
               dataKey="value"
               unit="°C"
@@ -255,17 +236,9 @@ export default function SensorNetwork() {
             />
           </div>
 
-          <div className="p-3 rounded-lg bg-mine-surface-alt border border-mine-border">
-            <div className="flex items-center justify-between mb-2">
-              <span className="flex items-center gap-1.5 text-xs font-bold uppercase tracking-wider text-mine-text-secondary">
-                <Droplets className="h-3.5 w-3.5 text-sky-500" />
-                Strata Relative Moisture / Humidity ({envSensor.id})
-              </span>
-              <span className="text-xs font-mono font-semibold text-mine-text-primary">
-                {envSensor.humidity?.toFixed(1)} % RH
-              </span>
-            </div>
+          <div className="rounded-lg bg-mine-surface-alt p-3 border border-mine-border flex flex-col justify-between">
             <SensorChart
+              label={`Strata Moisture / Humidity (${envSensor.id})`}
               data={envSensor.history?.humidity || []}
               dataKey="value"
               unit="% RH"
@@ -349,46 +322,56 @@ export default function SensorNetwork() {
           </div>
 
           <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-5 gap-4">
-            <SensorChart
-              label="Displacement (mm)"
-              data={selectedSensor.history?.displacement || []}
-              dataKey="value"
-              unit="mm"
-              color="#C4820E"
-              height={140}
-            />
-            <SensorChart
-              label="Tilt Angle (°)"
-              data={selectedSensor.history?.tilt || []}
-              dataKey="value"
-              unit="°"
-              color="#D97706"
-              height={140}
-            />
-            <SensorChart
-              label="Vibration (g)"
-              data={selectedSensor.history?.vibration || []}
-              dataKey="value"
-              unit="g"
-              color="#C4362E"
-              height={140}
-            />
-            <SensorChart
-              label="Temperature (°C)"
-              data={selectedSensor.history?.temperature || []}
-              dataKey="value"
-              unit="°C"
-              color="#F59E0B"
-              height={140}
-            />
-            <SensorChart
-              label="Moisture (% RH)"
-              data={selectedSensor.history?.humidity || []}
-              dataKey="value"
-              unit="%"
-              color="#0284C7"
-              height={140}
-            />
+            <div className="rounded-lg bg-mine-surface-alt p-3 border border-mine-border flex flex-col justify-between">
+              <SensorChart
+                label="Displacement (mm)"
+                data={selectedSensor.history?.displacement || []}
+                dataKey="value"
+                unit="mm"
+                color="#C4820E"
+                height={140}
+              />
+            </div>
+            <div className="rounded-lg bg-mine-surface-alt p-3 border border-mine-border flex flex-col justify-between">
+              <SensorChart
+                label="Tilt Angle (°)"
+                data={selectedSensor.history?.tilt || []}
+                dataKey="value"
+                unit="°"
+                color="#D97706"
+                height={140}
+              />
+            </div>
+            <div className="rounded-lg bg-mine-surface-alt p-3 border border-mine-border flex flex-col justify-between">
+              <SensorChart
+                label="Vibration (g)"
+                data={selectedSensor.history?.vibration || []}
+                dataKey="value"
+                unit="g"
+                color="#C4362E"
+                height={140}
+              />
+            </div>
+            <div className="rounded-lg bg-mine-surface-alt p-3 border border-mine-border flex flex-col justify-between">
+              <SensorChart
+                label="Temperature (°C)"
+                data={selectedSensor.history?.temperature || []}
+                dataKey="value"
+                unit="°C"
+                color="#F59E0B"
+                height={140}
+              />
+            </div>
+            <div className="rounded-lg bg-mine-surface-alt p-3 border border-mine-border flex flex-col justify-between">
+              <SensorChart
+                label="Moisture (% RH)"
+                data={selectedSensor.history?.humidity || []}
+                dataKey="value"
+                unit="% RH"
+                color="#0284C7"
+                height={140}
+              />
+            </div>
           </div>
         </div>
       )}
