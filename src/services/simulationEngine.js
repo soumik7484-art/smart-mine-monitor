@@ -358,28 +358,30 @@ export function createSimulationEngine() {
       // Activate emergency mode
       emergencyModeActive = true;
 
-      // Find workers at or near nodes connected by this tunnel and mark them EVACUATING
-      const adjacentNodes = tunnelDef ? [tunnelDef.from, tunnelDef.to] : [];
-      const tunnelZone = tunnelDef?.zone?.charAt(0); // e.g. 'B' from 'B' or 'BC'
-
-      const newlyAffected = workers.filter(w => {
-        // Worker is at a node directly connected to this tunnel
-        const atAdjacent = adjacentNodes.includes(w.nodeId);
-        // OR worker is in the same zone as the collapsed tunnel
-        const inSameZone = tunnelZone && w.zone === tunnelZone;
-        return atAdjacent || inSameZone;
-      });
+      // On any tunnel collapse, ALL underground workers are at risk and must evacuate.
+      // (A single blocked road can cut off escape routes for the entire shift crew.)
+      const newlyAffected = workers.filter(w => !affectedWorkerIds.includes(w.id));
 
       newlyAffected.forEach(w => {
         w.status = 'EVACUATING';
         w.movement = 'Rapid';
+        affectedWorkerIds.push(w.id);
+      });
+
+      // Also re-mark any existing workers that might have been reset
+      workers.forEach(w => {
         if (!affectedWorkerIds.includes(w.id)) {
           affectedWorkerIds.push(w.id);
         }
+        w.status = 'EVACUATING';
+        w.movement = 'Rapid';
       });
 
-      // Sound siren if any workers are affected in or near the collapsed road
-      if (newlyAffected.length > 0 || affectedWorkerIds.length > 0) {
+      // Deduplicate affectedWorkerIds by ID
+      affectedWorkerIds = [...new Set(affectedWorkerIds)];
+
+      // Sound siren since there are workers underground
+      if (workers.length > 0) {
         sirenActive = true;
       }
 
@@ -466,9 +468,19 @@ export function createSimulationEngine() {
 
   function loadCustomWorkers(customWorkers) {
     if (!Array.isArray(customWorkers) || customWorkers.length === 0) return;
-    activeCustomWorkers = customWorkers;
+
+    // Deduplicate by worker ID to prevent the same person appearing twice
+    const seen = new Set();
+    const uniqueWorkers = customWorkers.filter(cw => {
+      const id = cw.id;
+      if (seen.has(id)) return false;
+      seen.add(id);
+      return true;
+    });
+
+    activeCustomWorkers = uniqueWorkers;
     const defaultNodes = ['J7', 'J8', 'J9', 'J10', 'J11', 'J12', 'J13', 'J14'];
-    workers = customWorkers.map((cw, idx) => {
+    workers = uniqueWorkers.map((cw, idx) => {
       const nodeId = cw.nodeId || defaultNodes[idx % defaultNodes.length];
       const zone = cw.zone || NODE_TO_ZONE[nodeId] || ['A', 'B', 'C', 'D'][idx % 4];
       const coords = nodePositionMap[nodeId] || { x: 230, y: 220 };
