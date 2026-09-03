@@ -26,6 +26,7 @@ export function createSimulationEngine() {
   let alerts = [];
   let workerRoutes = {};
   let activeRouteWorkerId = 'W-003'; // Default to Zone B worker
+  let activeCustomWorkers = null;
 
   const nodePositionMap = {};
   MINE_NODES.forEach(n => { nodePositionMap[n.id] = { x: n.x, y: n.y }; });
@@ -279,7 +280,12 @@ export function createSimulationEngine() {
     });
 
     // Reset workers
-    workers = JSON.parse(JSON.stringify(INITIAL_WORKERS));
+    if (activeCustomWorkers && Array.isArray(activeCustomWorkers) && activeCustomWorkers.length > 0) {
+      loadCustomWorkers(activeCustomWorkers);
+    } else {
+      workers = JSON.parse(JSON.stringify(INITIAL_WORKERS));
+      workerRoutes = computeAllWorkerRoutes(workers, tunnelStates);
+    }
     alerts = [];
 
     return { mode };
@@ -440,11 +446,22 @@ export function createSimulationEngine() {
     };
   }
 
+  const NODE_TO_ZONE = {
+    J1: 'A', J2: 'A', J7: 'A', J8: 'A',
+    J3: 'B', J9: 'B', J10: 'B',
+    J4: 'C', J11: 'C', J12: 'C',
+    J5: 'D', J13: 'D', J14: 'D',
+    J6: 'D',
+    E1: 'A', E2: 'D', 'REF-1': 'B',
+  };
+
   function loadCustomWorkers(customWorkers) {
     if (!Array.isArray(customWorkers) || customWorkers.length === 0) return;
+    activeCustomWorkers = customWorkers;
+    const defaultNodes = ['J7', 'J8', 'J9', 'J10', 'J11', 'J12', 'J13', 'J14'];
     workers = customWorkers.map((cw, idx) => {
-      const zone = cw.zone || ['A', 'B', 'C', 'D'][idx % 4];
-      const nodeId = cw.nodeId || ['J7', 'J8', 'J9', 'J10', 'J11', 'J12', 'J13', 'J14'][idx % 8];
+      const nodeId = cw.nodeId || defaultNodes[idx % defaultNodes.length];
+      const zone = cw.zone || NODE_TO_ZONE[nodeId] || ['A', 'B', 'C', 'D'][idx % 4];
       const coords = nodePositionMap[nodeId] || { x: 230, y: 220 };
       return {
         id: cw.id || `W-${String(idx + 1).padStart(3, '0')}`,
@@ -464,11 +481,16 @@ export function createSimulationEngine() {
       };
     });
     workerRoutes = computeAllWorkerRoutes(workers, tunnelStates);
+    if (!workers.find(w => w.id === activeRouteWorkerId)) {
+      activeRouteWorkerId = workers[0]?.id || 'W-001';
+    }
   }
 
   function resetCustomWorkers() {
+    activeCustomWorkers = null;
     workers = JSON.parse(JSON.stringify(INITIAL_WORKERS));
     workerRoutes = computeAllWorkerRoutes(workers, tunnelStates);
+    activeRouteWorkerId = 'W-003';
   }
 
   return {
