@@ -1,7 +1,7 @@
 import React, { useState } from 'react';
 import { useMine } from '../../context/MineContext';
 import { UserPlus, X, HardHat, Radio, ShieldCheck, MapPin, Activity, Check } from 'lucide-react';
-import { MINE_NODES } from '../../data/mineData';
+import { MINE_NODES } from '../../data/mineData.js';
 
 const ROLE_OPTIONS = [
   'Continuous Miner Operator',

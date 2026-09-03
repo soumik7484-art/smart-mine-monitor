@@ -101,6 +101,62 @@ export const MineProvider = ({ children }) => {
     }
   }, [adminSession, engine]);
 
+  // ─── Toasts System (declared early so other callbacks can use addToast) ───
+  const addToast = useCallback(({ title, message, type = 'info', duration = 5000 }) => {
+    const id = Date.now() + Math.random().toString(36).substring(2, 5);
+    const now = new Date();
+    const time = now.toLocaleTimeString([], { hour: '2-digit', minute: '2-digit', second: '2-digit' });
+    const newToast = { id, title, message, type, time };
+    setToasts((prev) => [newToast, ...prev].slice(0, 5));
+    if (duration > 0) {
+      setTimeout(() => {
+        setToasts((prev) => prev.filter((t) => t.id !== id));
+      }, duration);
+    }
+  }, []);
+
+  const removeToast = useCallback((id) => {
+    setToasts((prev) => prev.filter((t) => t.id !== id));
+  }, []);
+
+  // ─── Incident Logging System ───────────────────────────────────────────
+  const logIncident = useCallback(({ location, event, risk = 'MEDIUM', action, status = 'ACTIVE' }) => {
+    const now = new Date();
+    const dateStr = now.toISOString().split('T')[0];
+    const timeStr = now.toLocaleTimeString('en-IN', { hour: '2-digit', minute: '2-digit', second: '2-digit' });
+    const id = `INC-${now.getFullYear()}-${String(Math.floor(100 + Math.random() * 900))}`;
+
+    const newRecord = {
+      id,
+      date: dateStr,
+      time: timeStr,
+      location,
+      event,
+      risk: risk.toUpperCase(),
+      action,
+      status,
+      isLive: true,
+    };
+
+    setIncidentLog((prev) => [newRecord, ...prev]);
+    return newRecord;
+  }, []);
+
+  const resetIncidentLog = useCallback(() => {
+    setIncidentLog(INITIAL_STATUTORY_INCIDENTS);
+    try {
+      localStorage.removeItem('mineguard_incident_log');
+    } catch (e) {}
+  }, []);
+
+  // Sync incident log to localStorage
+  useEffect(() => {
+    try {
+      localStorage.setItem('mineguard_incident_log', JSON.stringify(incidentLog));
+    } catch (e) {}
+  }, [incidentLog]);
+
+  // ─── Admin Session Management ──────────────────────────────────────────
   const clearAdminSession = useCallback(() => {
     try {
       localStorage.removeItem('mineguard_active_session');
@@ -172,45 +228,6 @@ export const MineProvider = ({ children }) => {
     return newWorker;
   }, [engine, logIncident, addToast]);
 
-  // Sync incident log to localStorage
-  useEffect(() => {
-    try {
-      localStorage.setItem('mineguard_incident_log', JSON.stringify(incidentLog));
-    } catch (e) {}
-  }, [incidentLog]);
-
-
-  // Method to log an incident event into the audit record
-  const logIncident = useCallback(({ location, event, risk = 'MEDIUM', action, status = 'ACTIVE' }) => {
-    const now = new Date();
-    const dateStr = now.toISOString().split('T')[0];
-    const timeStr = now.toLocaleTimeString('en-IN', { hour: '2-digit', minute: '2-digit', second: '2-digit' });
-    const id = `INC-${now.getFullYear()}-${String(Math.floor(100 + Math.random() * 900))}`;
-
-    const newRecord = {
-      id,
-      date: dateStr,
-      time: timeStr,
-      location,
-      event,
-      risk: risk.toUpperCase(),
-      action,
-      status,
-      isLive: true,
-    };
-
-    setIncidentLog((prev) => [newRecord, ...prev]);
-    return newRecord;
-  }, []);
-
-  // Clear live logs back to statutory baseline
-  const resetIncidentLog = useCallback(() => {
-    setIncidentLog(INITIAL_STATUTORY_INCIDENTS);
-    try {
-      localStorage.removeItem('mineguard_incident_log');
-    } catch (e) {}
-  }, []);
-
   // ML Backend Live State
   const [mlBackendState, setMlBackendState] = useState({
     isConnected: false,
@@ -220,23 +237,6 @@ export const MineProvider = ({ children }) => {
     latencyMs: null,
     isPredicting: false,
   });
-
-  const addToast = useCallback(({ title, message, type = 'info', duration = 5000 }) => {
-    const id = Date.now() + Math.random().toString(36).substring(2, 5);
-    const now = new Date();
-    const time = now.toLocaleTimeString([], { hour: '2-digit', minute: '2-digit', second: '2-digit' });
-    const newToast = { id, title, message, type, time };
-    setToasts((prev) => [newToast, ...prev].slice(0, 5));
-    if (duration > 0) {
-      setTimeout(() => {
-        setToasts((prev) => prev.filter((t) => t.id !== id));
-      }, duration);
-    }
-  }, []);
-
-  const removeToast = useCallback((id) => {
-    setToasts((prev) => prev.filter((t) => t.id !== id));
-  }, []);
 
   useEffect(() => {
     if (theme === 'dark') {
