@@ -1071,7 +1071,7 @@
     setTimeout(() => {
       transitionModal.classList.remove('is-visible');
       const sessionParam = encodeURIComponent(JSON.stringify(activeSession));
-      window.location.href = `http://localhost:3001/#/overview?session=${sessionParam}`;
+      window.location.href = `http://localhost:3000/#/overview?session=${sessionParam}`;
     }, 900);
   });
 

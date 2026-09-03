@@ -272,7 +272,7 @@ export default function TopBar() {
             </button>
           ) : (
             <a
-              href="http://localhost:5000/"
+              href="http://localhost:5500/"
               target="_blank"
               rel="noopener noreferrer"
               className="flex items-center gap-1 text-[11px] px-2.5 py-1 rounded bg-mine-surface border border-mine-border text-mine-text-secondary hover:text-mine-text-primary hover:bg-mine-surface-alt transition font-semibold shadow-card"
