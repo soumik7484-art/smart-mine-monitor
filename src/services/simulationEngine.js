@@ -342,6 +342,10 @@ export function createSimulationEngine() {
             w.movement = 'Stationary';
           }
         });
+
+        if (affectedWorkerIds.length === 0) {
+          sirenActive = false;
+        }
       }
     } else {
       // ── Collapse tunnel ────────────────────────────────────────
@@ -373,6 +377,11 @@ export function createSimulationEngine() {
           affectedWorkerIds.push(w.id);
         }
       });
+
+      // Sound siren if any workers are affected in or near the collapsed road
+      if (newlyAffected.length > 0 || affectedWorkerIds.length > 0) {
+        sirenActive = true;
+      }
 
       // Push an alert
       alerts.unshift({
