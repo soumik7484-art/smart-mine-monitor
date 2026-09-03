@@ -1,9 +1,12 @@
-// MINEGUARD AI — Central React Context
+﻿// MINEGUARD AI — Central React Context
 // Replaces App.jsx prop drilling with context-based state management
+// Integrates simulation engine + background ML backend health & polling bridge
 
 import React, { createContext, useContext, useEffect, useState, useCallback, useRef } from 'react';
 import { createSimulationEngine } from '../services/simulationEngine.js';
 import { audioSynth } from '../utils/audioSynth.js';
+import { checkMLBackendHealth, queryMLBackend, buildMLTelemetryPayload } from '../services/mlAdapter.js';
+import { setLiveMLPrediction } from '../services/aiPrediction.js';
 
 const MineContext = createContext(null);
 
@@ -32,6 +35,16 @@ export const MineProvider = ({ children }) => {
     return 'light';
   });
   const [toasts, setToasts] = useState([]);
+
+  // ML Backend Live State
+  const [mlBackendState, setMlBackendState] = useState({
+    isConnected: false,
+    modelName: 'Calibrated Geotechnical Ensemble (Local Fallback)',
+    endpoint: 'http://localhost:8000/predict',
+    lastChecked: null,
+    latencyMs: null,
+    isPredicting: false,
+  });
 
   const addToast = useCallback(({ title, message, type = 'info', duration = 5000 }) => {
     const id = Date.now() + Math.random().toString(36).substring(2, 5);
@@ -72,6 +85,60 @@ export const MineProvider = ({ children }) => {
       setMineState(engine.getState());
     }, 2000);
     return () => clearInterval(interval);
+  }, [engine]);
+
+  // ─── Async ML Model Polling Loop (Option 2: Non-blocking 5s cadence) ──
+  useEffect(() => {
+    let isSubscribed = true;
+
+    const pollMLModel = async () => {
+      const health = await checkMLBackendHealth();
+      if (!isSubscribed) return;
+
+      if (health.isConnected) {
+        setMlBackendState(prev => ({
+          ...prev,
+          isConnected: true,
+          modelName: health.modelName,
+          lastChecked: health.lastChecked,
+          latencyMs: health.latencyMs,
+          isPredicting: true,
+        }));
+
+        const currentState = engine.getState();
+        const payload = buildMLTelemetryPayload(currentState.sensors);
+        const prediction = await queryMLBackend(payload);
+
+        if (!isSubscribed) return;
+
+        if (prediction) {
+          setLiveMLPrediction(prediction);
+          setMineState(engine.getState());
+        }
+
+        setMlBackendState(prev => ({ ...prev, isPredicting: false }));
+      } else {
+        setLiveMLPrediction(null);
+        setMlBackendState(prev => ({
+          ...prev,
+          isConnected: false,
+          modelName: 'Calibrated Geotechnical Ensemble (Local Fallback)',
+          lastChecked: health.lastChecked,
+          latencyMs: null,
+          isPredicting: false,
+        }));
+      }
+    };
+
+    // Initial check
+    pollMLModel();
+
+    // Poll every 5s without blocking the 2s sensor simulation tick
+    const mlInterval = setInterval(pollMLModel, 5000);
+    return () => {
+      isSubscribed = false;
+      clearInterval(mlInterval);
+    };
   }, [engine]);
 
   // ─── Audio sync ───────────────────────────────────────────────────────
@@ -168,7 +235,6 @@ export const MineProvider = ({ children }) => {
 
   const silenceSiren = useCallback(() => {
     audioSynth.stopSiren();
-    // Note: doesn't change emergencyModeActive, just silences audio
   }, []);
 
   const toggleMute = useCallback(() => {
@@ -208,6 +274,7 @@ export const MineProvider = ({ children }) => {
     theme,
     isDarkMode: theme === 'dark',
     toasts,
+    mlBackendState,
 
     // Actions
     addToast,

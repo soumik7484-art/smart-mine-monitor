@@ -36,6 +36,8 @@ export function createSimulationEngine() {
       s.history.tilt.push({ time, value: s.tilt + (Math.random() - 0.5) * 0.1 });
       s.history.vibration.push({ time, value: s.vibration + (Math.random() - 0.5) * 0.02 });
       s.history.stress.push({ time, value: s.stress + (Math.random() - 0.5) * 0.3 });
+      s.history.temperature.push({ time, value: +(s.temperature + (Math.random() - 0.5) * 0.2).toFixed(1) });
+      s.history.humidity.push({ time, value: +(s.humidity + (Math.random() - 0.5) * 1.0).toFixed(1) });
     }
   });
 
@@ -126,11 +128,15 @@ export function createSimulationEngine() {
       s.history.tilt.push({ time, value: s.tilt });
       s.history.vibration.push({ time, value: s.vibration });
       s.history.stress.push({ time, value: s.stress });
+      s.history.temperature.push({ time, value: +s.temperature.toFixed(1) });
+      s.history.humidity.push({ time, value: +s.humidity.toFixed(1) });
 
       if (s.history.displacement.length > HISTORY_LENGTH) s.history.displacement.shift();
       if (s.history.tilt.length > HISTORY_LENGTH) s.history.tilt.shift();
       if (s.history.vibration.length > HISTORY_LENGTH) s.history.vibration.shift();
       if (s.history.stress.length > HISTORY_LENGTH) s.history.stress.shift();
+      if (s.history.temperature.length > HISTORY_LENGTH) s.history.temperature.shift();
+      if (s.history.humidity.length > HISTORY_LENGTH) s.history.humidity.shift();
     });
 
     // Battery drain simulation
@@ -231,13 +237,15 @@ export function createSimulationEngine() {
     sensors = JSON.parse(JSON.stringify(INITIAL_SENSORS));
     sensors.forEach(s => {
       const now = Date.now();
-      s.history = { displacement: [], tilt: [], vibration: [], stress: [] };
+      s.history = { displacement: [], tilt: [], vibration: [], stress: [], temperature: [], humidity: [] };
       for (let i = HISTORY_LENGTH; i >= 0; i--) {
         const time = new Date(now - i * 60000).toLocaleTimeString('en-IN', { hour: '2-digit', minute: '2-digit' });
         s.history.displacement.push({ time, value: s.displacement + (Math.random() - 0.5) * 0.1 });
         s.history.tilt.push({ time, value: s.tilt + (Math.random() - 0.5) * 0.1 });
         s.history.vibration.push({ time, value: s.vibration + (Math.random() - 0.5) * 0.02 });
         s.history.stress.push({ time, value: s.stress + (Math.random() - 0.5) * 0.3 });
+        s.history.temperature.push({ time, value: +(s.temperature + (Math.random() - 0.5) * 0.2).toFixed(1) });
+        s.history.humidity.push({ time, value: +(s.humidity + (Math.random() - 0.5) * 1.0).toFixed(1) });
       }
     });
 

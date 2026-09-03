@@ -155,6 +155,8 @@ function createSensors() {
         tilt: [],
         vibration: [],
         stress: [],
+        temperature: [],
+        humidity: [],
       },
     });
   }
