@@ -1,0 +1,96 @@
+{
+  "model_name": "Random Forest (SIH Hardware-Aligned)",
+  "architecture": "RandomForestClassifier",
+  "n_estimators": 150,
+  "max_depth": 16,
+  "features_count": 14,
+  "feature_names": [
+    "acc_x_ms2",
+    "acc_y_ms2",
+    "acc_z_ms2",
+    "ppv_mms",
+    "frequency_hz",
+    "psd_value",
+    "geophone_mms",
+    "seismometer_ms2",
+    "temperature_c",
+    "vibration_magnitude_ms2",
+    "vibration_horizontal_ms2",
+    "kinetic_energy_proxy",
+    "accel_to_velocity_ratio",
+    "spectral_power_product"
+  ],
+  "classes": [
+    "CRITICAL",
+    "SAFE",
+    "WARNING"
+  ],
+  "accuracy": 1.0,
+  "classification_report": {
+    "CRITICAL": {
+      "precision": 1.0,
+      "recall": 1.0,
+      "f1-score": 1.0,
+      "support": 600.0
+    },
+    "SAFE": {
+      "precision": 1.0,
+      "recall": 1.0,
+      "f1-score": 1.0,
+      "support": 600.0
+    },
+    "WARNING": {
+      "precision": 1.0,
+      "recall": 1.0,
+      "f1-score": 1.0,
+      "support": 600.0
+    },
+    "accuracy": 1.0,
+    "macro avg": {
+      "precision": 1.0,
+      "recall": 1.0,
+      "f1-score": 1.0,
+      "support": 1800.0
+    },
+    "weighted avg": {
+      "precision": 1.0,
+      "recall": 1.0,
+      "f1-score": 1.0,
+      "support": 1800.0
+    }
+  },
+  "confusion_matrix": [
+    [
+      600,
+      0,
+      0
+    ],
+    [
+      0,
+      600,
+      0
+    ],
+    [
+      0,
+      0,
+      600
+    ]
+  ],
+  "feature_importances": {
+    "acc_x_ms2": 0.15925,
+    "acc_y_ms2": 0.1001,
+    "acc_z_ms2": 0.10082,
+    "ppv_mms": 0.07227,
+    "frequency_hz": 0.0006,
+    "psd_value": 0.09424,
+    "geophone_mms": 0.01292,
+    "seismometer_ms2": 0.11022,
+    "temperature_c": 0.00585,
+    "vibration_magnitude_ms2": 0.11186,
+    "vibration_horizontal_ms2": 0.13014,
+    "kinetic_energy_proxy": 0.10008,
+    "accel_to_velocity_ratio": 0.0,
+    "spectral_power_product": 0.00164
+  },
+  "trained_at": "2026-09-04T05:48:54.478264+00:00"
+}

@@ -658,28 +658,44 @@ export default function MineMap({ compact = false, height = 620, onSelectNode, o
                     onClick={() => handleTunnelClick(tunnel)}
                     className="cursor-pointer"
                   >
-                    {/* Outer tunnel rock casing */}
-                    <line
-                      x1={fromN.x}
-                      y1={fromN.y}
-                      x2={toN.x}
-                      y2={toN.y}
-                      stroke="#4A4742"
-                      strokeWidth={isInspected ? '18' : '14'}
-                      strokeLinecap="round"
-                    />
+                    {/* Roadways: Single-line centerline for blueprint maps; dual casing for default map */}
+                    {isCustomMapActive || activeMap?.isSingleLine ? (
+                      <line
+                        x1={fromN.x}
+                        y1={fromN.y}
+                        x2={toN.x}
+                        y2={toN.y}
+                        stroke={isCollapsed ? 'url(#collapseHazard)' : color}
+                        strokeWidth={isInspected ? '5.5' : '3.5'}
+                        strokeLinecap="round"
+                        strokeOpacity={isCollapsed ? 0.95 : 0.9}
+                      />
+                    ) : (
+                      <>
+                        {/* Outer tunnel rock casing */}
+                        <line
+                          x1={fromN.x}
+                          y1={fromN.y}
+                          x2={toN.x}
+                          y2={toN.y}
+                          stroke="#4A4742"
+                          strokeWidth={isInspected ? '18' : '14'}
+                          strokeLinecap="round"
+                        />
 
-                    {/* Inner gallery */}
-                    <line
-                      x1={fromN.x}
-                      y1={fromN.y}
-                      x2={toN.x}
-                      y2={toN.y}
-                      stroke={isCollapsed ? 'url(#collapseHazard)' : color}
-                      strokeWidth={isInspected ? '10' : '7'}
-                      strokeLinecap="round"
-                      strokeOpacity={isCollapsed ? 0.95 : 0.85}
-                    />
+                        {/* Inner gallery */}
+                        <line
+                          x1={fromN.x}
+                          y1={fromN.y}
+                          x2={toN.x}
+                          y2={toN.y}
+                          stroke={isCollapsed ? 'url(#collapseHazard)' : color}
+                          strokeWidth={isInspected ? '10' : '7'}
+                          strokeLinecap="round"
+                          strokeOpacity={isCollapsed ? 0.95 : 0.85}
+                        />
+                      </>
+                    )}
 
                     {/* Collapsed warning cross */}
                     {isCollapsed && (
@@ -690,21 +706,21 @@ export default function MineMap({ compact = false, height = 620, onSelectNode, o
                     )}
 
                     {/* Tunnel ID Badge */}
-                    <g transform={`translate(${(fromN.x + toN.x) / 2}, ${(fromN.y + toN.y) / 2 - 8})`}>
+                    <g transform={`translate(${(fromN.x + toN.x) / 2}, ${(fromN.y + toN.y) / 2 - (isCustomMapActive || activeMap?.isSingleLine ? 6 : 8)})`}>
                       <rect
-                        x="-14"
-                        y="-6"
-                        width="28"
-                        height="12"
+                        x={isCustomMapActive || activeMap?.isSingleLine ? "-11" : "-14"}
+                        y={isCustomMapActive || activeMap?.isSingleLine ? "-5" : "-6"}
+                        width={isCustomMapActive || activeMap?.isSingleLine ? "22" : "28"}
+                        height={isCustomMapActive || activeMap?.isSingleLine ? "10" : "12"}
                         rx="2"
                         fill={isDarkMode ? '#242730' : '#FFFFFF'}
                         stroke={isInspected ? '#06B6D4' : isDarkMode ? '#3E4350' : '#D8D3CA'}
-                        strokeWidth="1"
+                        strokeWidth="0.8"
                       />
                       <text
                         textAnchor="middle"
-                        y="3"
-                        fontSize="7"
+                        y={isCustomMapActive || activeMap?.isSingleLine ? "2.5" : "3"}
+                        fontSize={isCustomMapActive || activeMap?.isSingleLine ? "6" : "7"}
                         fontWeight="600"
                         fill={isDarkMode ? '#EDEAE4' : '#292722'}
                         fontFamily="Inter, sans-serif"

@@ -314,10 +314,16 @@ export default function BlueprintStudio({ defaultTab = 'upload' }) {
       setIsAnalyzing(false);
 
       // Automatically activate generated map on dashboard
-      if (activateMap) {
-        await activateMap(mapId);
-      } else if (setCustomActiveMap) {
-        setCustomActiveMap(generatedMap);
+      try {
+        if (activateMap) {
+          await activateMap(mapId);
+        } else if (setCustomActiveMap) {
+          setCustomActiveMap(generatedMap);
+        }
+      } catch (actErr) {
+        if (setCustomActiveMap) {
+          setCustomActiveMap(generatedMap);
+        }
       }
 
       // Refresh Mine Map Files table
@@ -865,8 +871,14 @@ export default function BlueprintStudio({ defaultTab = 'upload' }) {
                       if (!fromN || !toN) return null;
                       return (
                         <g key={r.id}>
-                          <line x1={fromN.x} y1={fromN.y} x2={toN.x} y2={toN.y} stroke="#3D3833" strokeWidth="10" strokeLinecap="round" />
-                          <line x1={fromN.x} y1={fromN.y} x2={toN.x} y2={toN.y} stroke="#2D8A4E" strokeWidth="5" strokeLinecap="round" />
+                          {analysisResult.isSingleLine ? (
+                            <line x1={fromN.x} y1={fromN.y} x2={toN.x} y2={toN.y} stroke="#10B981" strokeWidth="3" strokeLinecap="round" />
+                          ) : (
+                            <>
+                              <line x1={fromN.x} y1={fromN.y} x2={toN.x} y2={toN.y} stroke="#3D3833" strokeWidth="10" strokeLinecap="round" />
+                              <line x1={fromN.x} y1={fromN.y} x2={toN.x} y2={toN.y} stroke="#2D8A4E" strokeWidth="5" strokeLinecap="round" />
+                            </>
+                          )}
                         </g>
                       );
                     })}
@@ -1107,11 +1119,17 @@ export default function BlueprintStudio({ defaultTab = 'upload' }) {
 
                 return (
                   <g key={r.id}>
-                    <line x1={fromN.x} y1={fromN.y} x2={toN.x} y2={toN.y} stroke="#3D3833" strokeWidth="12" strokeLinecap="round" />
-                    <line x1={fromN.x} y1={fromN.y} x2={toN.x} y2={toN.y} stroke="#2D8A4E" strokeWidth="6" strokeLinecap="round" />
+                    {editableMap.isSingleLine ? (
+                      <line x1={fromN.x} y1={fromN.y} x2={toN.x} y2={toN.y} stroke="#10B981" strokeWidth="4" strokeLinecap="round" />
+                    ) : (
+                      <>
+                        <line x1={fromN.x} y1={fromN.y} x2={toN.x} y2={toN.y} stroke="#3D3833" strokeWidth="12" strokeLinecap="round" />
+                        <line x1={fromN.x} y1={fromN.y} x2={toN.x} y2={toN.y} stroke="#2D8A4E" strokeWidth="6" strokeLinecap="round" />
+                      </>
+                    )}
                     <g transform={`translate(${(fromN.x + toN.x) / 2}, ${(fromN.y + toN.y) / 2})`}>
-                      <rect x="-12" y="-6" width="24" height="12" rx="2" fill="#242730" />
-                      <text textAnchor="middle" y="3" fontSize="6" fill="#EDEAE4" fontWeight="600">{r.id}</text>
+                      <rect x="-11" y="-5" width="22" height="10" rx="2" fill="#242730" />
+                      <text textAnchor="middle" y="2.5" fontSize="5.5" fill="#EDEAE4" fontWeight="600">{r.id}</text>
                     </g>
                   </g>
                 );

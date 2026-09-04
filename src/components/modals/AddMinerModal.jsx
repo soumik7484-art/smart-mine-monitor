@@ -15,10 +15,10 @@ const ROLE_OPTIONS = [
 ];
 
 const ZONE_OPTIONS = [
-  { id: 'A', label: 'Zone A — Intake Panel (-140m)', nodes: ['J2', 'J7', 'J8'] },
-  { id: 'B', label: 'Zone B — Active Face (-260m)', nodes: ['J3', 'J9', 'J10'] },
-  { id: 'C', label: 'Zone C — Return Panel (-180m)', nodes: ['J4', 'J11', 'J12'] },
-  { id: 'D', label: 'Zone D — Development (-210m)', nodes: ['J5', 'J13', 'J14'] },
+  { id: 'A', label: 'Zone A — Intake Panel (-140m)', nodes: ['J-12', 'J-13', 'J-14', 'J-17', 'J-18'] },
+  { id: 'B', label: 'Zone B — Active Face (-260m)', nodes: ['J-05', 'J-06', 'J-08', 'J-15', 'J-16'] },
+  { id: 'C', label: 'Zone C — Return Panel (-180m)', nodes: ['J-03', 'J-04', 'J-09', 'J-19', 'J-20'] },
+  { id: 'D', label: 'Zone D — Development (-210m)', nodes: ['J-01', 'J-02', 'J-07', 'J-10', 'J-11'] },
 ];
 
 export const AddMinerModal = () => {
@@ -31,7 +31,7 @@ export const AddMinerModal = () => {
   const [phone, setPhone] = useState('');
   const [role, setRole] = useState(ROLE_OPTIONS[0]);
   const [zone, setZone] = useState('B');
-  const [nodeId, setNodeId] = useState('J9');
+  const [nodeId, setNodeId] = useState('J-05');
   const [helmet, setHelmet] = useState('Connected');
   const [errorMsg, setErrorMsg] = useState('');
 

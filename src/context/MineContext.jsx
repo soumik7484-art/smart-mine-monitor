@@ -202,7 +202,7 @@ export const MineProvider = ({ children }) => {
     setMineState(engine.getState());
     addToast({
       title: 'Reverted to Default Map',
-      message: 'Active map: Raniganj Seam 3 CAD plan.',
+      message: 'Active map: Raniganj Deep Colliery (Seam 4) blueprint route map.',
       type: 'info',
     });
   }, [engine, addToast]);
@@ -451,21 +451,22 @@ export const MineProvider = ({ children }) => {
     return result;
   }, [engine, addToast, logIncident]);
 
-  const triggerCollapse = useCallback((tunnelId = 'T-12') => {
-    const result = engine.triggerCollapse(tunnelId);
+  const triggerCollapse = useCallback((tunnelId = 'R-02') => {
+    const validTunnel = MINE_TUNNELS.find(t => t.id === tunnelId) || MINE_TUNNELS[0] || { id: 'R-01', zone: 'B', label: 'Main Haulage' };
+    const targetId = validTunnel.id;
+    const result = engine.triggerCollapse(targetId);
     setMineState(engine.getState());
     audioSynth.playWarning();
     if (!isMuted) audioSynth.startSiren();
-    setBannerNotification(`🚨 ROUTE UPDATED: Previous route through ${tunnelId} is unsafe. Alternative safe evacuation route calculated.`);
+    setBannerNotification(`🚨 ROUTE UPDATED: Previous route through ${targetId} is unsafe. Alternative safe evacuation route calculated.`);
     addToast({
-      title: `Tunnel Collapse: ${tunnelId}`,
-      message: 'Detour computed! Safe alternate path via Crosscut-4 to Exit E1',
+      title: `Tunnel Collapse: ${targetId}`,
+      message: 'Detour computed! Safe alternate path calculated to surface exit',
       type: 'critical',
     });
     setIsEmergencyHUDOpen(true);
 
-    const tunnelObj = MINE_TUNNELS.find(t => t.id === tunnelId);
-    const loc = tunnelObj ? `Zone ${tunnelObj.zone} — ${tunnelObj.label} (${tunnelId})` : `Tunnel ${tunnelId}`;
+    const loc = `Zone ${validTunnel.zone} — ${validTunnel.label} (${targetId})`;
 
     logIncident({
       location: loc,
@@ -664,7 +665,7 @@ export const MineProvider = ({ children }) => {
           resetToNormal();
         } else {
           triggerSubsidence();
-          setTimeout(() => triggerCollapse('T-12'), 3000);
+          setTimeout(() => triggerCollapse('R-02'), 3000);
         }
       }
     };

@@ -27,6 +27,7 @@ export default function Overview() {
     aiPrediction,
     emergencyModeActive,
     setIsEmergencyHUDOpen,
+    activeMap,
   } = useMine();
 
   const navigate = useNavigate();
@@ -125,7 +126,7 @@ export default function Overview() {
         <div className="lg:col-span-2 space-y-2">
           <div className="flex items-center justify-between">
             <span className="text-xs font-bold uppercase tracking-wider text-mine-text-secondary">
-              Underground 2D Schematic Network (Raniganj Seam 3)
+              Underground 2D Blueprint Route Network ({activeMap?.mineName || 'Raniganj Deep Colliery (Seam 4)'})
             </span>
             <button
               type="button"

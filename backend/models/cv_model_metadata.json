@@ -1,0 +1,133 @@
+{
+  "model_name": "Mine Blueprint Contour Classifier (Random Forest)",
+  "features_count": 17,
+  "feature_names": [
+    "area",
+    "perimeter",
+    "aspect_ratio",
+    "extent",
+    "solidity",
+    "compactness",
+    "rect_diff",
+    "hu_moment_1",
+    "hu_moment_2",
+    "hu_moment_3",
+    "hu_moment_4",
+    "hu_moment_5",
+    "hu_moment_6",
+    "hu_moment_7",
+    "norm_w",
+    "norm_h",
+    "norm_area"
+  ],
+  "classes": [
+    "NOISE",
+    "PILLAR",
+    "REFUGE_CHAMBER",
+    "ROADWAY",
+    "SHAFT"
+  ],
+  "accuracy": 0.9988,
+  "classification_report": {
+    "NOISE": {
+      "precision": 0.9981006647673314,
+      "recall": 1.0,
+      "f1-score": 0.9990494296577946,
+      "support": 1051.0
+    },
+    "PILLAR": {
+      "precision": 1.0,
+      "recall": 1.0,
+      "f1-score": 1.0,
+      "support": 166.0
+    },
+    "REFUGE_CHAMBER": {
+      "precision": 1.0,
+      "recall": 1.0,
+      "f1-score": 1.0,
+      "support": 164.0
+    },
+    "ROADWAY": {
+      "precision": 1.0,
+      "recall": 0.9940476190476191,
+      "f1-score": 0.9970149253731343,
+      "support": 168.0
+    },
+    "SHAFT": {
+      "precision": 1.0,
+      "recall": 0.9938271604938271,
+      "f1-score": 0.9969040247678018,
+      "support": 162.0
+    },
+    "accuracy": 0.9988310929281122,
+    "macro avg": {
+      "precision": 0.9996201329534664,
+      "recall": 0.9975749559082893,
+      "f1-score": 0.9985936759597461,
+      "support": 1711.0
+    },
+    "weighted avg": {
+      "precision": 0.9988333130744976,
+      "recall": 0.9988310929281122,
+      "f1-score": 0.9988298714467637,
+      "support": 1711.0
+    }
+  },
+  "confusion_matrix": [
+    [
+      166,
+      0,
+      0,
+      0,
+      0
+    ],
+    [
+      0,
+      164,
+      0,
+      0,
+      0
+    ],
+    [
+      0,
+      0,
+      167,
+      0,
+      1
+    ],
+    [
+      0,
+      0,
+      0,
+      161,
+      1
+    ],
+    [
+      0,
+      0,
+      0,
+      0,
+      1051
+    ]
+  ],
+  "feature_importances": {
+    "area": 0.1071,
+    "perimeter": 0.09625,
+    "aspect_ratio": 0.00882,
+    "extent": 0.15275,
+    "solidity": 0.03478,
+    "compactness": 0.11018,
+    "rect_diff": 0.14096,
+    "hu_moment_1": 0.12491,
+    "hu_moment_2": 0.05272,
+    "hu_moment_3": 0.00118,
+    "hu_moment_4": 0.00242,
+    "hu_moment_5": 0.00029,
+    "hu_moment_6": 0.00171,
+    "hu_moment_7": 0.00045,
+    "norm_w": 0.01456,
+    "norm_h": 0.02582,
+    "norm_area": 0.1251
+  },
+  "trained_at": "2026-09-04T05:48:55.600112+00:00"
+}

@@ -49,7 +49,7 @@ export default function MineMap() {
             )}
           </div>
           <p className="text-xs text-mine-text-secondary mt-1">
-            Real-time subsurface spatial monitoring across {activeMap?.mineName || 'Raniganj Seam 3'} with live personnel tracking & dynamic hazard routing
+            Real-time subsurface spatial monitoring across {activeMap?.mineName || 'Raniganj Deep Colliery (Seam 4)'} with live personnel tracking & dynamic hazard routing
           </p>
         </div>
 
@@ -60,10 +60,10 @@ export default function MineMap() {
               type="button"
               onClick={resetToDefaultMap}
               className="flex items-center gap-1.5 px-3 py-1.5 rounded text-xs font-semibold bg-mine-surface hover:bg-mine-surface-alt text-mine-text-secondary hover:text-mine-text-primary border border-mine-border transition"
-              title="Revert to standard default CAD map"
+              title="Revert to baseline blueprint map"
             >
               <RotateCcw className="h-3.5 w-3.5" />
-              <span>Revert to Default CAD</span>
+              <span>Revert to Baseline Blueprint</span>
             </button>
           ) : null}
 
